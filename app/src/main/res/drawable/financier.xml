@@ -1,0 +1,24 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="1024"
+    android:viewportHeight="1024">
+    <group
+        android:name="splashAnimationGroup"
+        android:pivotX="512"
+        android:pivotY="512"
+        android:scaleX="0.5"
+        android:scaleY="0.5">
+        <path
+            android:fillColor="#fff"
+            android:pathData="M416,448l-128,0l-160,320l128,0l160,-320z" />
+
+        <path
+            android:fillColor="#fff"
+            android:pathData="M896,256l-512,0l-64,128l512,0l64,-128z" />
+
+        <path
+            android:fillColor="#fff"
+            android:pathData="M736,576l64,-128l-320,0l-64,128l320,0z" />
+    </group>
+</vector>

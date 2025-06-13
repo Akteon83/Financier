@@ -9,4 +9,8 @@
     <string name="revenues_title">Доходы сегодня</string>
     <string name="account_title">Мой счет</string>
     <string name="items_title">Мои статьи</string>
+    <string name="total">Всего</string>
+    <string name="balance">Баланс</string>
+    <string name="currency">Валюта</string>
+    <string name="search_hint">Найти статью</string>
 </resources>
