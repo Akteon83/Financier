@@ -9,4 +9,8 @@
     <string name="revenues_title">Revenues today</string>
     <string name="account_title">My account</string>
     <string name="items_title">My items</string>
+    <string name="total">Total</string>
+    <string name="balance">Balance</string>
+    <string name="currency">Currency</string>
+    <string name="search_hint">Search item</string>
 </resources>
