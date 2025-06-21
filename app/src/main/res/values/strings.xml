@@ -3,7 +3,7 @@
     <string name="expenses">Expenses</string>
     <string name="revenues">Revenues</string>
     <string name="account">Account</string>
-    <string name="items">Items</string>
+    <string name="categories">Items</string>
     <string name="settings">Settings</string>
     <string name="expenses_title">Expenses today</string>
     <string name="revenues_title">Revenues today</string>
@@ -13,4 +13,8 @@
     <string name="balance">Balance</string>
     <string name="currency">Currency</string>
     <string name="search_hint">Search item</string>
+    <string name="history_title">My history</string>
+    <string name="beginning">Beginning</string>
+    <string name="ending">Ending</string>
+    <string name="amount">Amount</string>
 </resources>

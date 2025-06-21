@@ -3,7 +3,7 @@
     <string name="expenses">Расходы</string>
     <string name="revenues">Доходы</string>
     <string name="account">Счет</string>
-    <string name="items">Статьи</string>
+    <string name="categories">Статьи</string>
     <string name="settings">Настройки</string>
     <string name="expenses_title">Расходы сегодня</string>
     <string name="revenues_title">Доходы сегодня</string>
@@ -13,4 +13,8 @@
     <string name="balance">Баланс</string>
     <string name="currency">Валюта</string>
     <string name="search_hint">Найти статью</string>
+    <string name="history_title">Моя история</string>
+    <string name="beginning">Начало</string>
+    <string name="ending">Конец</string>
+    <string name="amount">Сумма</string>
 </resources>

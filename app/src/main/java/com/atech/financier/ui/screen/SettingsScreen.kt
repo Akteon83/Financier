@@ -1,4 +1,4 @@
-package com.atech.financier.ui.screens
+package com.atech.financier.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,20 +13,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.atech.financier.R
-import com.atech.financier.ui.components.ColumnItem
+import com.atech.financier.ui.component.ColumnItem
 import com.atech.financier.ui.theme.FinancierTheme
-
-@Preview(showBackground = true)
-@Composable
-private fun SettingsScreenPreview() {
-    FinancierTheme {
-        SettingsScreen()
-    }
-}
+import com.atech.financier.ui.viewmodel.SettingsViewModel
 
 @Composable
 fun SettingsScreen(
+    viewModel: SettingsViewModel = viewModel()
+) {
+    SettingsScreenContent(
+        darkThemeChecked = viewModel.darkThemeChecked,
+        onDarkThemeCheckedChange = viewModel::onDarkThemeCheckedChange
+    )
+}
+
+@Composable
+private fun SettingsScreenContent(
     darkThemeChecked: Boolean = false,
     onDarkThemeCheckedChange: (Boolean) -> Unit = {},
 ) {
@@ -69,5 +73,13 @@ fun SettingsScreen(
                 }
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SettingsScreenPreview() {
+    FinancierTheme {
+        SettingsScreenContent()
     }
 }
