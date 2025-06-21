@@ -1,6 +1,5 @@
-package com.atech.financier.ui.screens
+package com.atech.financier.ui.screen
 
-import android.icu.util.Currency
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,43 +14,46 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.atech.financier.R
-import com.atech.financier.domain.models.TransactionResponse
-import com.atech.financier.ui.components.ColumnItem
+import com.atech.financier.ui.component.ColumnItem
 import com.atech.financier.ui.theme.FinancierTheme
 import com.atech.financier.ui.theme.Trans
+import com.atech.financier.ui.viewmodel.RevenuesState
+import com.atech.financier.ui.viewmodel.RevenuesViewModel
 
-@Preview(showBackground = true)
 @Composable
-private fun ExpensesScreenPreview() {
-    FinancierTheme {
-        ExpensesScreen()
-    }
+fun RevenuesScreen(
+    viewModel: RevenuesViewModel = viewModel()
+) {
+    RevenuesScreenContent(
+        state = viewModel.state
+    )
 }
 
 @Composable
-fun ExpensesScreen(
-    expenses: List<TransactionResponse> = emptyList<TransactionResponse>()
+private fun RevenuesScreenContent(
+    state: RevenuesState = RevenuesState()
 ) {
-    Column(modifier = Modifier.background(MaterialTheme.colorScheme.outlineVariant),) {
+    Column(modifier = Modifier.background(MaterialTheme.colorScheme.outlineVariant)) {
+
         ColumnItem(
             title = stringResource(R.string.total),
-            value = "800 000 ₽",
+            value = "${state.total} ${state.currency}",
             color = MaterialTheme.colorScheme.secondary
         )
+
         LazyColumn(
             contentPadding = PaddingValues(vertical = 1.dp),
             verticalArrangement = Arrangement.spacedBy(1.dp)
         ) {
             items(
-                items = expenses,
-                key = { expense -> expense.id }
-            ) { expense ->
+                items = state.revenues
+            ) { revenue ->
                 ColumnItem(
-                    title = expense.category.name,
-                    value = expense.amount + " " + Currency.getInstance(expense.account.currency).symbol,
-                    description = expense.comment ?: "",
-                    emoji = expense.category.emoji,
+                    title = revenue.title,
+                    value = "${revenue.amount} ${state.currency}",
+                    description = revenue.description,
                     highEmphasis = true,
                     iconRight = {
                         Icon(
@@ -63,5 +65,13 @@ fun ExpensesScreen(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RevenuesScreenPreview() {
+    FinancierTheme {
+        RevenuesScreenContent()
     }
 }

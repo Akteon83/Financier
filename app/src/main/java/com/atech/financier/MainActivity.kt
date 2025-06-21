@@ -1,5 +1,6 @@
 package com.atech.financier
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,10 +13,8 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.FloatingActionButtonElevation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -35,17 +34,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.atech.financier.ui.screens.AccountScreen
-import com.atech.financier.ui.screens.ExpensesScreen
-import com.atech.financier.ui.screens.ItemsScreen
-import com.atech.financier.ui.screens.RevenuesScreen
-import com.atech.financier.ui.screens.SettingsScreen
+import com.atech.financier.ui.navigation.BottomNavigationItem.Companion.navigationBarItems
+import com.atech.financier.ui.navigation.Screen
+import com.atech.financier.ui.screen.AccountScreen
+import com.atech.financier.ui.screen.ExpensesScreen
+import com.atech.financier.ui.screen.CategoriesScreen
+import com.atech.financier.ui.screen.HistoryScreen
+import com.atech.financier.ui.screen.RevenuesScreen
+import com.atech.financier.ui.screen.SettingsScreen
 import com.atech.financier.ui.theme.FinancierTheme
-import com.atech.financier.ui.viewmodels.ExpensesViewModel
-import com.atech.financier.ui.viewmodels.ItemsViewModel
-import com.atech.financier.ui.viewmodels.RevenuesViewModel
-import com.atech.financier.ui.viewmodels.SettingsViewModel
-import kotlinx.serialization.Serializable
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -53,10 +50,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         enableEdgeToEdge()
-        val expensesViewModel = ExpensesViewModel()
-        val revenuesViewModel = RevenuesViewModel()
-        val itemsViewModel = ItemsViewModel()
-        val settingsViewModel = SettingsViewModel()
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
         setContent {
             FinancierTheme {
 
@@ -67,8 +61,10 @@ class MainActivity : ComponentActivity() {
                     currentDestination?.hasRoute(Screen.Expenses::class) == true -> Screen.Expenses
                     currentDestination?.hasRoute(Screen.Revenues::class) == true -> Screen.Revenues
                     currentDestination?.hasRoute(Screen.Account::class) == true -> Screen.Account
-                    currentDestination?.hasRoute(Screen.Items::class) == true -> Screen.Items
+                    currentDestination?.hasRoute(Screen.Categories::class) == true -> Screen.Categories
                     currentDestination?.hasRoute(Screen.Settings::class) == true -> Screen.Settings
+                    currentDestination?.hasRoute(Screen.ExpensesHistory::class) == true -> Screen.ExpensesHistory
+                    currentDestination?.hasRoute(Screen.RevenuesHistory::class) == true -> Screen.RevenuesHistory
                     else -> {
                         Screen.Expenses
                     }
@@ -85,8 +81,10 @@ class MainActivity : ComponentActivity() {
                                             is Screen.Expenses -> R.string.expenses_title
                                             is Screen.Revenues -> R.string.revenues_title
                                             is Screen.Account -> R.string.account_title
-                                            is Screen.Items -> R.string.items_title
+                                            is Screen.Categories -> R.string.items_title
                                             is Screen.Settings -> R.string.settings
+                                            is Screen.ExpensesHistory,
+                                            is Screen.RevenuesHistory -> R.string.history_title
                                         }
                                     ),
                                     style = MaterialTheme.typography.titleLarge
@@ -94,9 +92,27 @@ class MainActivity : ComponentActivity() {
                             },
                             navigationIcon = {},
                             actions = {
-                                if (currentScreen !is Screen.Items && currentScreen !is Screen.Settings) {
+                                if (currentScreen !is Screen.Categories && currentScreen !is Screen.Settings) {
                                     IconButton(
-                                        onClick = {}
+                                        onClick = {
+                                            when (currentScreen) {
+                                                is Screen.Expenses, is Screen.Revenues -> {
+                                                    navController.navigate(
+                                                        if (currentScreen is Screen.Expenses)
+                                                            Screen.ExpensesHistory
+                                                        else Screen.RevenuesHistory
+                                                    ) {
+                                                        popUpTo(navController.graph.findStartDestination().id) {
+                                                            saveState = true
+                                                        }
+                                                        launchSingleTop = true
+                                                        restoreState = true
+                                                    }
+                                                }
+
+                                                else -> {}
+                                            }
+                                        }
                                     ) {
                                         Icon(
                                             painter = painterResource(
@@ -124,7 +140,11 @@ class MainActivity : ComponentActivity() {
                                 NavigationBarItem(
                                     selected = currentDestination?.hierarchy?.any {
                                         it.hasRoute(item.route::class)
-                                    } == true,
+                                    } == true
+                                            || (item.route is Screen.Expenses
+                                            && currentScreen is Screen.ExpensesHistory)
+                                            || (item.route is Screen.Revenues
+                                            && currentScreen is Screen.RevenuesHistory),
                                     onClick = {
                                         navController.navigate(item.route) {
                                             popUpTo(navController.graph.findStartDestination().id) {
@@ -157,7 +177,12 @@ class MainActivity : ComponentActivity() {
                                 shape = CircleShape,
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 contentColor = MaterialTheme.colorScheme.surface,
-                                elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp)
+                                elevation = FloatingActionButtonDefaults.elevation(
+                                    0.dp,
+                                    0.dp,
+                                    0.dp,
+                                    0.dp
+                                )
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.add),
@@ -173,84 +198,38 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding),
                         startDestination = Screen.Expenses
                     ) {
+
                         composable<Screen.Expenses> {
-                            ExpensesScreen(
-                                expensesViewModel.expenses
-                            )
+                            ExpensesScreen()
                         }
+
                         composable<Screen.Revenues> {
-                            RevenuesScreen(
-                                revenuesViewModel.revenues
-                            )
+                            RevenuesScreen()
                         }
+
                         composable<Screen.Account> {
                             AccountScreen()
                         }
-                        composable<Screen.Items> {
-                            ItemsScreen(
-                                itemsViewModel.items
-                            )
+
+                        composable<Screen.Categories> {
+                            CategoriesScreen()
                         }
+
                         composable<Screen.Settings> {
-                            SettingsScreen(
-                                settingsViewModel.darkThemeChecked.value,
-                                settingsViewModel::onDarkThemeCheckedChange
-                            )
+                            SettingsScreen()
                         }
+
+                        composable<Screen.ExpensesHistory> {
+                            HistoryScreen()
+                        }
+
+                        composable<Screen.RevenuesHistory> {
+                            HistoryScreen()
+                        }
+
                     }
                 }
             }
         }
     }
-}
-
-val navigationBarItems = listOf(
-    BottomNavigationItem(
-        R.string.expenses,
-        R.drawable.expenses,
-        Screen.Expenses
-    ),
-    BottomNavigationItem(
-        R.string.revenues,
-        R.drawable.revenues,
-        Screen.Revenues
-    ),
-    BottomNavigationItem(
-        R.string.account,
-        R.drawable.account,
-        Screen.Account
-    ),
-    BottomNavigationItem(
-        R.string.items,
-        R.drawable.items,
-        Screen.Items
-    ),
-    BottomNavigationItem(
-        R.string.settings,
-        R.drawable.settings,
-        Screen.Settings
-    ),
-)
-
-data class BottomNavigationItem<T : Screen>(
-    val label: Int,
-    val icon: Int,
-    val route: T
-)
-
-sealed interface Screen {
-    @Serializable
-    object Expenses : Screen
-
-    @Serializable
-    object Revenues : Screen
-
-    @Serializable
-    object Account : Screen
-
-    @Serializable
-    object Items : Screen
-
-    @Serializable
-    object Settings : Screen
 }

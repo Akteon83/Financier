@@ -1,4 +1,4 @@
-package com.atech.financier.domain.models
+package com.atech.financier.domain.model
 
 data class Transaction(
     val id: Int,
@@ -8,7 +8,7 @@ data class Transaction(
     val transactionDate: String,
     val comment: String?,
     val createdAt: String,
-    val updatedAt: String
+    val updatedAt: String,
 )
 
 data class TransactionRequest(
@@ -16,7 +16,7 @@ data class TransactionRequest(
     val categoryId: Int,
     val amount: String,
     val transactionDate: String,
-    val comment: String?
+    val comment: String?,
 )
 
 data class TransactionResponse(
@@ -27,5 +27,5 @@ data class TransactionResponse(
     val transactionDate: String,
     val comment: String?,
     val createdAt: String,
-    val updatedAt: String
+    val updatedAt: String,
 )
