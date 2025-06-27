@@ -36,10 +36,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.atech.financier.ui.navigation.BottomNavigationItem.Companion.navigationBarItems
 import com.atech.financier.ui.navigation.Screen
+import com.atech.financier.ui.navigation.screen
 import com.atech.financier.ui.screen.AccountScreen
 import com.atech.financier.ui.screen.ExpensesScreen
 import com.atech.financier.ui.screen.CategoriesScreen
 import com.atech.financier.ui.screen.HistoryScreen
+import com.atech.financier.ui.screen.MainScreen
 import com.atech.financier.ui.screen.RevenuesScreen
 import com.atech.financier.ui.screen.SettingsScreen
 import com.atech.financier.ui.theme.FinancierTheme
@@ -56,21 +58,13 @@ class MainActivity : ComponentActivity() {
 
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentDestination = navBackStackEntry?.destination
-                val currentScreen = when {
-                    currentDestination?.hasRoute(Screen.Expenses::class) == true -> Screen.Expenses
-                    currentDestination?.hasRoute(Screen.Revenues::class) == true -> Screen.Revenues
-                    currentDestination?.hasRoute(Screen.Account::class) == true -> Screen.Account
-                    currentDestination?.hasRoute(Screen.Categories::class) == true -> Screen.Categories
-                    currentDestination?.hasRoute(Screen.Settings::class) == true -> Screen.Settings
-                    currentDestination?.hasRoute(Screen.ExpensesHistory::class) == true -> Screen.ExpensesHistory
-                    currentDestination?.hasRoute(Screen.RevenuesHistory::class) == true -> Screen.RevenuesHistory
-                    else -> {
-                        Screen.Expenses
-                    }
-                }
 
-                Scaffold(
+                MainScreen(
+                    currentScreen = navBackStackEntry?.destination?.screen ?: Screen.Expenses,
+                    navController = navController
+                )
+
+                /*Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
                         CenterAlignedTopAppBar(
@@ -81,7 +75,7 @@ class MainActivity : ComponentActivity() {
                                             is Screen.Expenses -> R.string.expenses_title
                                             is Screen.Revenues -> R.string.revenues_title
                                             is Screen.Account -> R.string.account_title
-                                            is Screen.Categories -> R.string.items_title
+                                            is Screen.Categories -> R.string.categories_title
                                             is Screen.Settings -> R.string.settings
                                             is Screen.ExpensesHistory,
                                             is Screen.RevenuesHistory -> R.string.history_title
@@ -228,7 +222,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                     }
-                }
+                }*/
             }
         }
     }
