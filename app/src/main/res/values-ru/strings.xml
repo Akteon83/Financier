@@ -8,7 +8,7 @@
     <string name="expenses_title">Расходы сегодня</string>
     <string name="revenues_title">Доходы сегодня</string>
     <string name="account_title">Мой счет</string>
-    <string name="items_title">Мои статьи</string>
+    <string name="categories_title">Мои статьи</string>
     <string name="total">Всего</string>
     <string name="balance">Баланс</string>
     <string name="currency">Валюта</string>
@@ -17,4 +17,12 @@
     <string name="beginning">Начало</string>
     <string name="ending">Конец</string>
     <string name="amount">Сумма</string>
+    <string name="dark_theme">Тёмная тема</string>
+    <string name="main_color">Основной цвет</string>
+    <string name="sounds">Звуки</string>
+    <string name="haptics">Хаптик</string>
+    <string name="password">Код пароль</string>
+    <string name="synchronization">Синхронизация</string>
+    <string name="language">Язык</string>
+    <string name="about_app">О программе</string>
 </resources>

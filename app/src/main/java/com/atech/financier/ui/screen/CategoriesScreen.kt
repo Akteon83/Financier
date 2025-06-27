@@ -8,11 +8,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.atech.financier.domain.model.Category
 import com.atech.financier.ui.component.ColumnItem
 import com.atech.financier.ui.component.SearchBarItem
 import com.atech.financier.ui.theme.FinancierTheme
@@ -23,8 +24,9 @@ import com.atech.financier.ui.viewmodel.CategoriesViewModel
 fun CategoriesScreen(
     viewModel: CategoriesViewModel = viewModel()
 ) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
     CategoriesScreenContent(
-        state = viewModel.state,
+        state = state,
         onSearchChange = viewModel::onSearchChange
     )
 }

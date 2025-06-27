@@ -8,6 +8,7 @@ import retrofit2.http.Header
 import retrofit2.http.Path
 import retrofit2.http.Query
 
+/** API для взаимодействия с сервером при помощи Retrofit */
 interface FinancierApi {
 
     @GET("transactions/account/{accountId}/period")
@@ -16,7 +17,7 @@ interface FinancierApi {
         @Path("accountId") accountId: Int,
         @Query("startDate") startDate: String? = null,
         @Query("endDate") endDate: String? = null
-        ): Response<List<TransactionResponse>>
+    ): Response<List<TransactionResponse>>
 
     @GET("accounts")
     suspend fun getAccounts(): Response<List<Account>>

@@ -5,6 +5,8 @@ import com.atech.financier.ui.viewmodel.ExpenseItemState
 import com.atech.financier.ui.viewmodel.RevenueItemState
 import com.atech.financier.ui.viewmodel.TransactionItemState
 
+/** Extension-функции для преобразования транзакции в состояние UI-элемента */
+
 fun TransactionResponse.toExpenseItemState(): ExpenseItemState? {
     return if (this.category.isIncome) null
     else ExpenseItemState(

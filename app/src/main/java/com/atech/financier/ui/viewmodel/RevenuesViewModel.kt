@@ -1,41 +1,24 @@
 package com.atech.financier.ui.viewmodel
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.atech.financier.data.RetrofitInstance.api
 import com.atech.financier.domain.usecase.GetTotalUseCase
 import com.atech.financier.domain.usecase.TransactionType
 import com.atech.financier.ui.util.asNumber
-import com.atech.financier.ui.util.toExpenseItemState
 import com.atech.financier.ui.util.toRevenueItemState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Currency
 
 class RevenuesViewModel : ViewModel() {
 
-    var state by mutableStateOf(
-        RevenuesState(
-            total = "600 000",
-            currency = "$",
-            revenues = listOf(
-
-                RevenueItemState(
-                    title = "Зарплата",
-                    amount = "500 000",
-                ),
-
-                RevenueItemState(
-                    title = "Подработка",
-                    amount = "100 000",
-                ),
-            ),
-        )
-    )
-        private set
+    private val _state = MutableStateFlow(RevenuesState())
+    val state: StateFlow<RevenuesState> = _state.asStateFlow()
 
     init {
         loadTransactions()
@@ -45,12 +28,19 @@ class RevenuesViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val response = api.getTransactions(accountId = 1)
-                state = state.copy(
-                    total = GetTotalUseCase.execute(response.body() ?: emptyList(), TransactionType.REVENUE).asNumber(),
-                    currency = Currency.getInstance(response.body()?.first()?.account?.currency ?: "USD").symbol,
-                    revenues = response.body()?.mapNotNull { it.toRevenueItemState() }
-                        ?: emptyList()
-                )
+                _state.update { currentState ->
+                    currentState.copy(
+                        total = GetTotalUseCase.execute(
+                            response.body() ?: emptyList(),
+                            TransactionType.REVENUE
+                        ).asNumber(),
+                        currency = Currency.getInstance(
+                            response.body()?.first()?.account?.currency ?: "USD"
+                        ).symbol,
+                        revenues = response.body()?.mapNotNull { it.toRevenueItemState() }
+                            ?: emptyList()
+                    )
+                }
             } catch (e: Error) {
 
             }

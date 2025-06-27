@@ -36,16 +36,17 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.atech.financier.ui.navigation.BottomNavigationItem.Companion.navigationBarItems
 import com.atech.financier.ui.navigation.Screen
+import com.atech.financier.ui.navigation.screen
 import com.atech.financier.ui.screen.AccountScreen
 import com.atech.financier.ui.screen.ExpensesScreen
 import com.atech.financier.ui.screen.CategoriesScreen
 import com.atech.financier.ui.screen.HistoryScreen
+import com.atech.financier.ui.screen.MainScreen
 import com.atech.financier.ui.screen.RevenuesScreen
 import com.atech.financier.ui.screen.SettingsScreen
 import com.atech.financier.ui.theme.FinancierTheme
 
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
@@ -56,179 +57,11 @@ class MainActivity : ComponentActivity() {
 
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentDestination = navBackStackEntry?.destination
-                val currentScreen = when {
-                    currentDestination?.hasRoute(Screen.Expenses::class) == true -> Screen.Expenses
-                    currentDestination?.hasRoute(Screen.Revenues::class) == true -> Screen.Revenues
-                    currentDestination?.hasRoute(Screen.Account::class) == true -> Screen.Account
-                    currentDestination?.hasRoute(Screen.Categories::class) == true -> Screen.Categories
-                    currentDestination?.hasRoute(Screen.Settings::class) == true -> Screen.Settings
-                    currentDestination?.hasRoute(Screen.ExpensesHistory::class) == true -> Screen.ExpensesHistory
-                    currentDestination?.hasRoute(Screen.RevenuesHistory::class) == true -> Screen.RevenuesHistory
-                    else -> {
-                        Screen.Expenses
-                    }
-                }
 
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    topBar = {
-                        CenterAlignedTopAppBar(
-                            title = {
-                                Text(
-                                    text = stringResource(
-                                        when (currentScreen) {
-                                            is Screen.Expenses -> R.string.expenses_title
-                                            is Screen.Revenues -> R.string.revenues_title
-                                            is Screen.Account -> R.string.account_title
-                                            is Screen.Categories -> R.string.items_title
-                                            is Screen.Settings -> R.string.settings
-                                            is Screen.ExpensesHistory,
-                                            is Screen.RevenuesHistory -> R.string.history_title
-                                        }
-                                    ),
-                                    style = MaterialTheme.typography.titleLarge
-                                )
-                            },
-                            navigationIcon = {},
-                            actions = {
-                                if (currentScreen !is Screen.Categories && currentScreen !is Screen.Settings) {
-                                    IconButton(
-                                        onClick = {
-                                            when (currentScreen) {
-                                                is Screen.Expenses, is Screen.Revenues -> {
-                                                    navController.navigate(
-                                                        if (currentScreen is Screen.Expenses)
-                                                            Screen.ExpensesHistory
-                                                        else Screen.RevenuesHistory
-                                                    ) {
-                                                        popUpTo(navController.graph.findStartDestination().id) {
-                                                            saveState = true
-                                                        }
-                                                        launchSingleTop = true
-                                                        restoreState = true
-                                                    }
-                                                }
-
-                                                else -> {}
-                                            }
-                                        }
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(
-                                                when (currentScreen) {
-                                                    is Screen.Expenses, is Screen.Revenues -> R.drawable.mdi_history
-                                                    is Screen.Account -> R.drawable.edit
-                                                    else -> R.drawable.chevron_right
-                                                }
-                                            ),
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                }
-                            },
-                            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                titleContentColor = MaterialTheme.colorScheme.onSurface
-                            )
-                        )
-                    },
-                    bottomBar = {
-                        NavigationBar {
-                            navigationBarItems.forEach { item ->
-                                NavigationBarItem(
-                                    selected = currentDestination?.hierarchy?.any {
-                                        it.hasRoute(item.route::class)
-                                    } == true
-                                            || (item.route is Screen.Expenses
-                                            && currentScreen is Screen.ExpensesHistory)
-                                            || (item.route is Screen.Revenues
-                                            && currentScreen is Screen.RevenuesHistory),
-                                    onClick = {
-                                        navController.navigate(item.route) {
-                                            popUpTo(navController.graph.findStartDestination().id) {
-                                                saveState = true
-                                            }
-                                            launchSingleTop = true
-                                            restoreState = true
-                                        }
-                                    },
-                                    icon = {
-                                        Icon(
-                                            painter = painterResource(item.icon),
-                                            contentDescription = null
-                                        )
-                                    },
-                                    label = {
-                                        Text(
-                                            text = stringResource(item.label),
-                                            style = MaterialTheme.typography.labelSmall
-                                        )
-                                    }
-                                )
-                            }
-                        }
-                    },
-                    floatingActionButton = {
-                        if (currentScreen is Screen.Expenses || currentScreen is Screen.Revenues) {
-                            FloatingActionButton(
-                                onClick = {},
-                                shape = CircleShape,
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = MaterialTheme.colorScheme.surface,
-                                elevation = FloatingActionButtonDefaults.elevation(
-                                    0.dp,
-                                    0.dp,
-                                    0.dp,
-                                    0.dp
-                                )
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.add),
-                                    contentDescription = null
-                                )
-                            }
-                        }
-                    },
-                    containerColor = MaterialTheme.colorScheme.surface
-                ) { innerPadding ->
-                    NavHost(
-                        navController = navController,
-                        modifier = Modifier.padding(innerPadding),
-                        startDestination = Screen.Expenses
-                    ) {
-
-                        composable<Screen.Expenses> {
-                            ExpensesScreen()
-                        }
-
-                        composable<Screen.Revenues> {
-                            RevenuesScreen()
-                        }
-
-                        composable<Screen.Account> {
-                            AccountScreen()
-                        }
-
-                        composable<Screen.Categories> {
-                            CategoriesScreen()
-                        }
-
-                        composable<Screen.Settings> {
-                            SettingsScreen()
-                        }
-
-                        composable<Screen.ExpensesHistory> {
-                            HistoryScreen()
-                        }
-
-                        composable<Screen.RevenuesHistory> {
-                            HistoryScreen()
-                        }
-
-                    }
-                }
+                MainScreen(
+                    currentScreen = navBackStackEntry?.destination?.screen ?: Screen.Expenses,
+                    navController = navController
+                )
             }
         }
     }

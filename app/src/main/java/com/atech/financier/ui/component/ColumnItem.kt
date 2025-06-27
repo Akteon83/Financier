@@ -28,8 +28,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.atech.financier.R
+import com.atech.financier.ui.theme.FinancierTheme
 
 @Composable
 fun ColumnItem(
@@ -100,6 +102,7 @@ fun ColumnItem(
             Text(
                 text = value,
                 color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.End,
                 style = MaterialTheme.typography.bodyLarge
             )
         }
@@ -108,34 +111,15 @@ fun ColumnItem(
     }
 }
 
+@Preview
 @Composable
-fun SearchBarItem(
-    value: String = "",
-    onValueChange: (String) -> Unit = {}
-) {
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .fillMaxWidth()
-            .defaultMinSize(minHeight = 56.dp),
-        placeholder = {
-            Text(
-                text = "Найти статью"
-            )
-        },
-        trailingIcon = {
-            Icon(
-                painter = painterResource(R.drawable.search),
-                contentDescription = null
-            )
-        },
-        singleLine = true,
-        colors = TextFieldDefaults.colors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
+private fun ColumnItemPreview() {
+    FinancierTheme {
+        ColumnItem(
+            title = "На собачку",
+            value = "150 $",
+            description = "Масик",
+            highEmphasis = true
         )
-    )
+    }
 }

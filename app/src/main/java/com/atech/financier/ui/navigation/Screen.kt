@@ -2,6 +2,7 @@ package com.atech.financier.ui.navigation
 
 import kotlinx.serialization.Serializable
 
+/** Интерфейс, описывающий внутренний экран приложения */
 sealed interface Screen {
 
     @Serializable

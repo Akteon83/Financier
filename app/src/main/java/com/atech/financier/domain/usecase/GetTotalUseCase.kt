@@ -1,35 +1,43 @@
 package com.atech.financier.domain.usecase
 
 import com.atech.financier.domain.model.TransactionResponse
+import kotlin.math.abs
 
+/** Use case для вычисления общей суммы транзакций для конкретного типа транзакции */
 object GetTotalUseCase {
 
-    fun execute(transactions: List<TransactionResponse>, transactionType: TransactionType = TransactionType.ANY): String {
+    fun execute(
+        transactions: List<TransactionResponse>,
+        transactionType: TransactionType = TransactionType.ANY
+    ): String {
+
         var total = 0L
-        when (transactionType) {
-            TransactionType.ANY -> {
-                transactions.forEach {
-                    total += (it.amount.toDouble() * 100).toLong()
-                }
-            }
 
-            TransactionType.EXPENSE -> {
-                transactions.forEach {
-                    if (!it.category.isIncome) {
+        transactions.forEach {
+            if (it.category.isIncome) {
+                when (transactionType) {
+                    TransactionType.ANY, TransactionType.REVENUE -> {
                         total += (it.amount.toDouble() * 100).toLong()
                     }
-                }
-            }
 
-            TransactionType.REVENUE -> {
-                transactions.forEach {
-                    if (it.category.isIncome) {
-                        total += (it.amount.toDouble() * 100).toLong()
+                    else -> {}
+                }
+            } else {
+                when (transactionType) {
+                    TransactionType.ANY, TransactionType.EXPENSE -> {
+                        total -= (it.amount.toDouble() * 100).toLong()
                     }
+
+                    else -> {}
                 }
             }
         }
-        return "${(total / 100)}.${total % 100}"
+
+        if (transactionType == TransactionType.EXPENSE) total = -total
+
+        val sign = if (total < 0) "-" else ""
+
+        return "$sign${(abs(total) / 100)}.${abs(total) % 100}"
     }
 }
 
