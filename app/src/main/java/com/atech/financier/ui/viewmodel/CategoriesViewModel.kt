@@ -5,56 +5,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.atech.financier.ui.util.MockData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class CategoriesViewModel : ViewModel() {
 
-    var state by mutableStateOf(
-        CategoriesState(
-            categories = listOf(
-
-                CategoryItemState(
-                    title = "Аренда Квартиры",
-                    emoji = "\uD83C\uDFE0",
-                ),
-
-                CategoryItemState(
-                    title = "Одежда",
-                    emoji = "\uD83D\uDC57",
-                ),
-
-                CategoryItemState(
-                    title = "На собачку",
-                    emoji = "\uD83D\uDC36",
-                ),
-
-                CategoryItemState(
-                    title = "Ремонт квартиры",
-                    emoji = "РК",
-                ),
-
-                CategoryItemState(
-                    title = "Продукты",
-                    emoji = "\uD83C\uDF6D",
-                ),
-
-                CategoryItemState(
-                    title = "Спортзал",
-                    emoji = "\uD83C\uDFCB\uFE0F",
-                ),
-
-                CategoryItemState(
-                    title = "Медицина",
-                    emoji = "\uD83D\uDC8A",
-                ),
-            ),
-        )
-    )
-        private set
+    private val _state = MutableStateFlow(CategoriesState(categories = MockData.categoriesList))
+    val state: StateFlow<CategoriesState> = _state.asStateFlow()
 
     fun onSearchChange(search: String) {
-        state = state.copy(
-            search = search
-        )
+        _state.update { currentState ->
+            currentState.copy(
+                search = search
+            )
+        }
     }
 
 }

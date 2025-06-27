@@ -8,6 +8,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import com.atech.financier.ui.navigation.Screen
 
+/** WORK IN PROGRESS */
 class MainViewModel : ViewModel() /*{
 
     var state by mutableStateOf(MainState())

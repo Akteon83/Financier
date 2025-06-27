@@ -8,64 +8,26 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.atech.financier.data.RetrofitInstance.api
 import com.atech.financier.domain.usecase.GetTotalUseCase
+import com.atech.financier.ui.util.MockData
 import com.atech.financier.ui.util.asNumber
 import com.atech.financier.ui.util.toExpenseItemState
 import com.atech.financier.ui.util.toTransactionItemState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Currency
 
 class HistoryViewModel : ViewModel() {
 
-    var state by mutableStateOf(
+    private val _state = MutableStateFlow(
         HistoryState(
             beginning = "Февраль 2025",
-            ending = "23:41",
-            total = "500 000",
-            currency = "$",
-            transactions = listOf(
-
-                TransactionItemState(
-                    title = "Ремонт Квартиры",
-                    amount = "100 000",
-                    description = "Ремонт - фурнитура для дверей",
-                    emoji = "РК",
-                    time = "22:01",
-                ),
-
-                TransactionItemState(
-                    title = "Одежда",
-                    amount = "100 000",
-                    description = "Футболка с Металликой",
-                    emoji = "\uD83D\uDC57",
-                    time = "20:57",
-                ),
-
-                TransactionItemState(
-                    title = "На собачку",
-                    amount = "100 000",
-                    description = "Корм для Джека",
-                    emoji = "\uD83D\uDC36",
-                    time = "20:11",
-                ),
-
-                TransactionItemState(
-                    title = "На собачку",
-                    amount = "100 000",
-                    description = "Корм для Энни",
-                    emoji = "\uD83D\uDC36",
-                    time = "20:10",
-                ),
-
-                TransactionItemState(
-                    title = "Спортзал",
-                    amount = "100 000",
-                    emoji = "\uD83C\uDFCB\uFE0F",
-                    time = "11:45",
-                ),
-            )
+            ending = "23:41"
         )
     )
-        private set
+    val state: StateFlow<HistoryState> = _state.asStateFlow()
 
     init {
         loadTransactions()
@@ -75,12 +37,16 @@ class HistoryViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val response = api.getTransactions(accountId = 1)
-                state = state.copy(
-                    total = GetTotalUseCase.execute(response.body() ?: emptyList()).asNumber(),
-                    currency = Currency.getInstance(response.body()?.first()?.account?.currency ?: "USD").symbol,
-                    transactions = response.body()?.mapNotNull { it.toTransactionItemState() }
-                        ?: emptyList()
-                )
+                _state.update { currentState ->
+                    currentState.copy(
+                        total = GetTotalUseCase.execute(response.body() ?: emptyList()).asNumber(),
+                        currency = Currency.getInstance(
+                            response.body()?.first()?.account?.currency ?: "USD"
+                        ).symbol,
+                        transactions = response.body()?.mapNotNull { it.toTransactionItemState() }
+                            ?: emptyList()
+                    )
+                }
             } catch (e: Error) {
 
             }

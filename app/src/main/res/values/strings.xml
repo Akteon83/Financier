@@ -8,13 +8,21 @@
     <string name="expenses_title">Expenses today</string>
     <string name="revenues_title">Revenues today</string>
     <string name="account_title">My account</string>
-    <string name="categories_title">My items</string>
+    <string name="categories_title">My categories</string>
     <string name="total">Total</string>
     <string name="balance">Balance</string>
     <string name="currency">Currency</string>
-    <string name="search_hint">Search item</string>
+    <string name="search_hint">Search category</string>
     <string name="history_title">My history</string>
     <string name="beginning">Beginning</string>
     <string name="ending">Ending</string>
     <string name="amount">Amount</string>
+    <string name="dark_theme">Dark Theme</string>
+    <string name="main_color">Main color</string>
+    <string name="sounds">Sounds</string>
+    <string name="haptics">Haptics</string>
+    <string name="password">Password</string>
+    <string name="synchronization">Synchronization</string>
+    <string name="language">Language</string>
+    <string name="about_app">About the app</string>
 </resources>

@@ -2,6 +2,7 @@ package com.atech.financier.ui.navigation
 
 import com.atech.financier.R
 
+/** Класс, описывающий элемент нижней панели навигации */
 data class BottomNavigationItem<T : Screen>(
     val label: Int,
     val icon: Int,

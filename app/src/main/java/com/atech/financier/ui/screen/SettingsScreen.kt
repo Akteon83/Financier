@@ -11,6 +11,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -35,13 +36,13 @@ private fun SettingsScreenContent(
     onDarkThemeCheckedChange: (Boolean) -> Unit = {},
 ) {
     val settingsItems = listOf(
-        "Основной цвет",
-        "Звуки",
-        "Хаптики",
-        "Код пароль",
-        "Cинхронизация",
-        "Язык",
-        "О программе"
+        stringResource(R.string.main_color),
+        stringResource(R.string.sounds),
+        stringResource(R.string.haptics),
+        stringResource(R.string.password),
+        stringResource(R.string.synchronization),
+        stringResource(R.string.language),
+        stringResource(R.string.about_app)
     )
     LazyColumn(
         modifier = Modifier.background(MaterialTheme.colorScheme.outlineVariant),
@@ -50,7 +51,7 @@ private fun SettingsScreenContent(
     ) {
         item {
             ColumnItem(
-                title = "Тёмная тема",
+                title = stringResource(R.string.dark_theme),
                 iconRight = {
                     Switch(
                         checked = darkThemeChecked,

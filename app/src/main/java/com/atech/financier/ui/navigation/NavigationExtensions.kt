@@ -3,6 +3,7 @@ package com.atech.financier.ui.navigation
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 
+/** Extension-свойство для получения информации о текущем экране из NavDestination */
 val NavDestination.screen
     get() = when {
         this.hasRoute(Screen.Expenses::class) == true -> Screen.Expenses

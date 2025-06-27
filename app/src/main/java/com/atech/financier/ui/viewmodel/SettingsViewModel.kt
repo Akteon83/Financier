@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 class SettingsViewModel : ViewModel() {
 
     var darkThemeChecked by mutableStateOf(false)
+        private set
 
     fun onDarkThemeCheckedChange(checked: Boolean) {
         darkThemeChecked = checked
