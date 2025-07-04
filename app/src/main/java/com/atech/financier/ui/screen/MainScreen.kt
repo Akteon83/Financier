@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -30,9 +31,11 @@ import androidx.navigation.compose.rememberNavController
 import com.atech.financier.R
 import com.atech.financier.ui.navigation.BottomNavigationItem.Companion.navigationBarItems
 import com.atech.financier.ui.navigation.Screen
+import com.atech.financier.ui.viewmodel.MainViewModel
 
 @Composable
 fun MainScreen(
+    viewModel: MainViewModel = viewModel(),
     currentScreen: Screen,
     navController: NavHostController = rememberNavController(),
 ) {
@@ -55,7 +58,48 @@ fun MainScreen(
                     }
                 }
 
+                is Screen.Account -> {
+                    navController.navigate(
+                        Screen.AccountEditor
+                    ) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+
+                is Screen.AccountEditor -> {
+                    viewModel.updateAccount()
+                    navController.navigate(
+                        Screen.Account
+                    ) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+
                 else -> {}
+            }
+        },
+        onNavigationClick = {
+            navController.navigate(
+                when (currentScreen) {
+                    is Screen.ExpensesHistory -> Screen.Expenses
+                    is Screen.RevenuesHistory -> Screen.Revenues
+                    is Screen.AccountEditor -> Screen.Account
+                    else -> Screen.Expenses
+                }
+            ) {
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
             }
         },
         onNavBarClick = { route ->
@@ -102,6 +146,10 @@ fun MainScreen(
                 HistoryScreen()
             }
 
+            composable<Screen.AccountEditor> {
+                AccountEditor()
+            }
+
         }
     }
 }
@@ -111,6 +159,7 @@ fun MainScreen(
 private fun MainScreenContent(
     currentScreen: Screen,
     onActionClick: () -> Unit = {},
+    onNavigationClick: () -> Unit = {},
     onNavBarClick: (Screen) -> Unit = {},
     content: @Composable ((PaddingValues) -> Unit) = {}
 ) {
@@ -124,7 +173,22 @@ private fun MainScreenContent(
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
-                navigationIcon = {},
+                navigationIcon = {
+                    if (currentScreen is Screen.ExpensesHistory
+                        || currentScreen is Screen.RevenuesHistory
+                        || currentScreen is Screen.AccountEditor
+                    ) {
+                        IconButton(
+                            onClick = onNavigationClick
+                        ) {
+                            Icon(
+                                painter = painterResource(currentScreen.navigationIcon),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                },
                 actions = {
                     if (currentScreen !is Screen.Categories && currentScreen !is Screen.Settings) {
                         IconButton(
@@ -152,7 +216,9 @@ private fun MainScreenContent(
                                 || (item.route == Screen.Expenses
                                 && currentScreen == Screen.ExpensesHistory)
                                 || (item.route == Screen.Revenues
-                                && currentScreen == Screen.RevenuesHistory),
+                                && currentScreen == Screen.RevenuesHistory)
+                                || (item.route == Screen.Account
+                                && currentScreen == Screen.AccountEditor),
                         onClick = { onNavBarClick(item.route) },
                         icon = {
                             Icon(
@@ -201,7 +267,9 @@ val Screen.screenTitle
     get() = when (this) {
         Screen.Expenses -> R.string.expenses_title
         Screen.Revenues -> R.string.revenues_title
-        Screen.Account -> R.string.account_title
+        Screen.Account,
+        Screen.AccountEditor -> R.string.account_title
+
         Screen.Categories -> R.string.categories_title
         Screen.Settings -> R.string.settings
         Screen.ExpensesHistory,
@@ -213,5 +281,13 @@ val Screen.actionIcon
         is Screen.Expenses, is Screen.Revenues -> R.drawable.mdi_history
         is Screen.Account -> R.drawable.edit
         is Screen.ExpensesHistory, is Screen.RevenuesHistory -> R.drawable.mdi_clipboard
+        is Screen.AccountEditor -> R.drawable.check
+        else -> R.drawable.empty
+    }
+
+val Screen.navigationIcon
+    get() = when (this) {
+        is Screen.ExpensesHistory, is Screen.RevenuesHistory -> R.drawable.arrow_back
+        is Screen.AccountEditor -> R.drawable.close
         else -> R.drawable.empty
     }

@@ -3,7 +3,7 @@ package com.atech.financier.ui.util
 import com.atech.financier.ui.viewmodel.CategoryItemState
 import com.atech.financier.ui.viewmodel.ExpenseItemState
 import com.atech.financier.ui.viewmodel.RevenueItemState
-import com.atech.financier.ui.viewmodel.TransactionItemState
+import com.atech.financier.ui.viewmodel.HistoryItemState
 
 /** Синглтон, хранящий моковые данные для тестирования UI */
 object MockData {
@@ -114,43 +114,43 @@ object MockData {
 
     val historyList = listOf(
 
-        TransactionItemState(
+        HistoryItemState(
             title = "Ремонт Квартиры",
             amount = "100 000",
             description = "Ремонт - фурнитура для дверей",
             emoji = "РК",
-            time = "22:01",
+            dateTime = "22:01",
         ),
 
-        TransactionItemState(
+        HistoryItemState(
             title = "Одежда",
             amount = "100 000",
             description = "Футболка с Металликой",
             emoji = "\uD83D\uDC57",
-            time = "20:57",
+            dateTime = "20:57",
         ),
 
-        TransactionItemState(
+        HistoryItemState(
             title = "На собачку",
             amount = "100 000",
             description = "Корм для Джека",
             emoji = "\uD83D\uDC36",
-            time = "20:11",
+            dateTime = "20:11",
         ),
 
-        TransactionItemState(
+        HistoryItemState(
             title = "На собачку",
             amount = "100 000",
             description = "Корм для Энни",
             emoji = "\uD83D\uDC36",
-            time = "20:10",
+            dateTime = "20:10",
         ),
 
-        TransactionItemState(
+        HistoryItemState(
             title = "Спортзал",
             amount = "100 000",
             emoji = "\uD83C\uDFCB\uFE0F",
-            time = "11:45",
+            dateTime = "11:45",
         ),
     )
 }

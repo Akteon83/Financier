@@ -25,4 +25,8 @@
     <string name="synchronization">Синхронизация</string>
     <string name="language">Язык</string>
     <string name="about_app">О программе</string>
+    <string name="name">Имя</string>
+    <string name="rub">Российские Рубли</string>
+    <string name="usd">Доллары США</string>
+    <string name="eur">Евро</string>
 </resources>

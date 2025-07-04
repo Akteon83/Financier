@@ -25,4 +25,7 @@ sealed interface Screen {
 
     @Serializable
     object RevenuesHistory : Screen
+
+    @Serializable
+    object AccountEditor : Screen
 }

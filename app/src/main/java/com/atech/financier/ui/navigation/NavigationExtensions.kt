@@ -13,5 +13,6 @@ val NavDestination.screen
         this.hasRoute(Screen.Settings::class) == true -> Screen.Settings
         this.hasRoute(Screen.ExpensesHistory::class) == true -> Screen.ExpensesHistory
         this.hasRoute(Screen.RevenuesHistory::class) == true -> Screen.RevenuesHistory
+        this.hasRoute(Screen.AccountEditor::class) == true -> Screen.AccountEditor
         else -> Screen.Expenses
     }
