@@ -25,4 +25,8 @@
     <string name="synchronization">Synchronization</string>
     <string name="language">Language</string>
     <string name="about_app">About the app</string>
+    <string name="name">Name</string>
+    <string name="rub">Rubles</string>
+    <string name="usd">US Dollars</string>
+    <string name="eur">Euros</string>
 </resources>

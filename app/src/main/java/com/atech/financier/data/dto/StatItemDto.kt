@@ -1,6 +1,6 @@
-package com.atech.financier.domain.model
+package com.atech.financier.data.dto
 
-data class StatItem(
+data class StatItemDto(
     val categoryId: Int,
     val categoryName: String,
     val emoji: String,

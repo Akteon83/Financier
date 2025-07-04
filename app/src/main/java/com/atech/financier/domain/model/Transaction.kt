@@ -1,31 +1,12 @@
 package com.atech.financier.domain.model
 
+import java.time.Instant
+
 data class Transaction(
     val id: Int,
-    val accountId: Int,
-    val categoryId: Int,
-    val amount: String,
-    val transactionDate: String,
+    val amount: Long,
+    val title: String,
+    val emoji: String,
     val comment: String?,
-    val createdAt: String,
-    val updatedAt: String,
-)
-
-data class TransactionRequest(
-    val accountId: Int,
-    val categoryId: Int,
-    val amount: String,
-    val transactionDate: String,
-    val comment: String?,
-)
-
-data class TransactionResponse(
-    val id: Int,
-    val account: AccountBrief,
-    val category: Category,
-    val amount: String,
-    val transactionDate: String,
-    val comment: String?,
-    val createdAt: String,
-    val updatedAt: String,
+    val dateTime: Instant,
 )

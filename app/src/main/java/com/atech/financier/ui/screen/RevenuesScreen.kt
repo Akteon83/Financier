@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -28,22 +29,26 @@ import com.atech.financier.ui.viewmodel.RevenuesViewModel
 fun RevenuesScreen(
     viewModel: RevenuesViewModel = viewModel()
 ) {
+    LaunchedEffect(Unit) { viewModel.loadTransactions() }
     val state by viewModel.state.collectAsStateWithLifecycle()
     RevenuesScreenContent(
-        state = state
+        state = state,
+        onRefresh = viewModel::updateTransactions
     )
 }
 
 @Composable
 private fun RevenuesScreenContent(
-    state: RevenuesState = RevenuesState()
+    state: RevenuesState = RevenuesState(),
+    onRefresh: () -> Unit = {}
 ) {
     Column(modifier = Modifier.background(MaterialTheme.colorScheme.outlineVariant)) {
 
         ColumnItem(
             title = stringResource(R.string.total),
             value = "${state.total} ${state.currency}",
-            color = MaterialTheme.colorScheme.secondary
+            color = MaterialTheme.colorScheme.secondary,
+            onClick = onRefresh
         )
 
         LazyColumn(

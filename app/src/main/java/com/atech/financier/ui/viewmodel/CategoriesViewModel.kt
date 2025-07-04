@@ -1,19 +1,19 @@
 package com.atech.financier.ui.viewmodel
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.atech.financier.ui.util.MockData
+import androidx.lifecycle.viewModelScope
+import com.atech.financier.data.repository.CategoryRepositoryImpl
+import com.atech.financier.ui.mapper.toCategoryItemState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class CategoriesViewModel : ViewModel() {
 
-    private val _state = MutableStateFlow(CategoriesState(categories = MockData.categoriesList))
+    private val _state = MutableStateFlow(CategoriesState())
     val state: StateFlow<CategoriesState> = _state.asStateFlow()
 
     fun onSearchChange(search: String) {
@@ -21,6 +21,20 @@ class CategoriesViewModel : ViewModel() {
             currentState.copy(
                 search = search
             )
+        }
+    }
+
+    fun loadCategories(requireUpdate: Boolean = false) {
+        viewModelScope.launch {
+            val categories = CategoryRepositoryImpl
+                .getCategories(
+                    requireUpdate = requireUpdate,
+                )
+            _state.update { currentState ->
+                currentState.copy(
+                    categories = categories.map { it.toCategoryItemState() }
+                )
+            }
         }
     }
 
