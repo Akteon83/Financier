@@ -72,12 +72,15 @@ class AccountEditorViewModel : ViewModel() {
     }
 
     fun loadAccount(requireUpdate: Boolean = false) {
+
         viewModelScope.launch {
+
             val account = AccountRepositoryImpl
                 .getAccount(
                     id = 1,
                     requireUpdate = requireUpdate,
                 )
+
             _state.update { currentState ->
                 currentState.copy(
                     name = account?.name ?: "UNKNOWN",
@@ -89,21 +92,24 @@ class AccountEditorViewModel : ViewModel() {
     }
 
     private fun updateAccount() {
+
         viewModelScope.launch {
+
             withContext(NonCancellable) {
+
                 val account = Account(
                     id = 1,
                     name = state.value.name,
                     balance = state.value.balance.toBalance(),
                     currency = state.value.currency.toCurrencyString(),
                 )
+
                 AccountRepositoryImpl.updateAccount(
                     account = account,
                 )
             }
         }
     }
-
 }
 
 @Immutable

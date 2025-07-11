@@ -1,31 +1,46 @@
 package com.atech.financier.ui.navigation
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /** Интерфейс, описывающий внутренний экран приложения */
+@Serializable
 sealed interface Screen {
 
     @Serializable
+    @SerialName("Expenses")
     object Expenses : Screen
 
     @Serializable
+    @SerialName("Revenues")
     object Revenues : Screen
 
     @Serializable
+    @SerialName("Account")
     object Account : Screen
 
     @Serializable
+    @SerialName("Categories")
     object Categories : Screen
 
     @Serializable
+    @SerialName("Settings")
     object Settings : Screen
 
     @Serializable
-    object ExpensesHistory : Screen
+    @SerialName("History")
+    data class History(
+        val isIncome: Boolean,
+    ) : Screen
 
     @Serializable
-    object RevenuesHistory : Screen
-
-    @Serializable
+    @SerialName("AccountEditor")
     object AccountEditor : Screen
+
+    @Serializable
+    @SerialName("TransactionEditor")
+    data class TransactionEditor(
+        val isIncome: Boolean,
+        val id: Int,
+    ) : Screen
 }

@@ -18,8 +18,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.atech.financier.R
+import com.atech.financier.ui.component.ChevronIcon
 import com.atech.financier.ui.component.ColumnItem
+import com.atech.financier.ui.navigation.Screen
 import com.atech.financier.ui.theme.FinancierTheme
 import com.atech.financier.ui.theme.Trans
 import com.atech.financier.ui.viewmodel.RevenuesState
@@ -27,12 +31,21 @@ import com.atech.financier.ui.viewmodel.RevenuesViewModel
 
 @Composable
 fun RevenuesScreen(
-    viewModel: RevenuesViewModel = viewModel()
+    viewModel: RevenuesViewModel = viewModel(),
+    navController: NavHostController = rememberNavController()
 ) {
     LaunchedEffect(Unit) { viewModel.loadTransactions() }
     val state by viewModel.state.collectAsStateWithLifecycle()
     RevenuesScreenContent(
         state = state,
+        onItemClick = { id ->
+            navController.navigate(
+                Screen.TransactionEditor(
+                    isIncome = true,
+                    id = id
+                )
+            )
+        },
         onRefresh = viewModel::updateTransactions
     )
 }
@@ -40,6 +53,7 @@ fun RevenuesScreen(
 @Composable
 private fun RevenuesScreenContent(
     state: RevenuesState = RevenuesState(),
+    onItemClick: (Int) -> Unit = {},
     onRefresh: () -> Unit = {}
 ) {
     Column(modifier = Modifier.background(MaterialTheme.colorScheme.outlineVariant)) {
@@ -56,21 +70,16 @@ private fun RevenuesScreenContent(
             verticalArrangement = Arrangement.spacedBy(1.dp)
         ) {
             items(
-                items = state.revenues
+                items = state.revenues,
+                key = { revenue -> revenue.id }
             ) { revenue ->
                 ColumnItem(
                     title = revenue.title,
                     value = "${revenue.amount} ${state.currency}",
                     description = revenue.description,
                     highEmphasis = true,
-                    iconRight = {
-                        Icon(
-                            painter = painterResource(R.drawable.chevron_right),
-                            contentDescription = null,
-                            tint = Trans
-                        )
-                    }
-                )
+                    iconRight = { ChevronIcon() }
+                ) { onItemClick(revenue.id) }
             }
         }
     }

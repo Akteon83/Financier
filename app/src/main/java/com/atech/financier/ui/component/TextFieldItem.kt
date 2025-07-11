@@ -27,6 +27,7 @@ fun TextFieldItem(
     title: String = "",
     value: String = "",
     color: Color = MaterialTheme.colorScheme.surface,
+    highEmphasis: Boolean = false,
     onValueChange: (String) -> Unit = {},
     keyboardType: KeyboardType = KeyboardType.Text
 ) {
@@ -34,16 +35,18 @@ fun TextFieldItem(
         modifier = Modifier
             .background(color)
             .fillMaxWidth()
-            .padding(start = 16.dp),
+            .padding(start = (if (title.isBlank()) 0 else 16).dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
-        Text(
-            text = title,
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.bodyLarge
-        )
+        if (title.isNotBlank()) {
+            Text(
+                text = title,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
 
         TextField(
             value = value,
@@ -51,8 +54,9 @@ fun TextFieldItem(
             modifier = Modifier
                 .background(color)
                 .weight(1F)
-                .defaultMinSize(minHeight = 56.dp),
-            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
+                .defaultMinSize(minHeight = (if (highEmphasis) 68 else 56).dp),
+            textStyle = LocalTextStyle.current
+                .copy(textAlign = if (title.isNotBlank()) TextAlign.End else TextAlign.Start),
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             singleLine = true,
             colors = TextFieldDefaults.colors(
@@ -72,7 +76,7 @@ fun TextFieldItem(
 private fun TextFieldItemPreview() {
     FinancierTheme {
         TextFieldItem(
-            title = "Баланс",
+            title = "",
             value = "600 000"
         )
     }

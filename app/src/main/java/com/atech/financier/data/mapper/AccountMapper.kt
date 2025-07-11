@@ -21,6 +21,6 @@ fun AccountResponseDto.toDomain() = Account(
 
 fun Account.toDto() = AccountRequestDto(
     name = name,
-    balance = "${balance.toString().dropLast(2)}.${balance.toString().takeLast(2)}",
+    balance = "${balance.toString().dropLast(2)}.${("00$balance").takeLast(2)}",
     currency = currency
 )

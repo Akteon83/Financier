@@ -25,10 +25,10 @@ object AccountRepositoryImpl : AccountRepository {
         try {
             _account = RetrofitInstance.api.updateAccount(
                 id = account.id,
-                account = account.toDto()
+                account = account.toDto(),
             ).body()?.toDomain()
             EventBus.invokeAction(EventBus.GlobalAction.AccountUpdated)
-        } catch (e: Error) {
+        } catch (e: Exception) {
 
         }
     }
@@ -40,7 +40,7 @@ object AccountRepositoryImpl : AccountRepository {
             _account = RetrofitInstance.api.getAccount(
                 id = id,
             ).body()?.toDomain()
-        } catch (e: Error) {
+        } catch (e: Exception) {
 
         }
     }

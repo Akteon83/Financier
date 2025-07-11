@@ -25,11 +25,14 @@ class CategoriesViewModel : ViewModel() {
     }
 
     fun loadCategories(requireUpdate: Boolean = false) {
+
         viewModelScope.launch {
+
             val categories = CategoryRepositoryImpl
                 .getCategories(
                     requireUpdate = requireUpdate,
                 )
+
             _state.update { currentState ->
                 currentState.copy(
                     categories = categories.map { it.toCategoryItemState() }
@@ -37,7 +40,6 @@ class CategoriesViewModel : ViewModel() {
             }
         }
     }
-
 }
 
 @Immutable
@@ -48,6 +50,7 @@ data class CategoriesState(
 
 @Immutable
 data class CategoryItemState(
+    val id: Int,
     val title: String = "",
     val emoji: String = "",
 )

@@ -11,4 +11,16 @@ interface TransactionRepository {
         endDate: Instant? = null,
         requireUpdate: Boolean = false,
     ): List<Transaction>
+
+    suspend fun getTransaction(
+        id: Int,
+    ): Transaction?
+
+    suspend fun updateTransaction(
+        transaction: Transaction,
+    )
+
+    suspend fun deleteTransaction(
+        id: Int,
+    )
 }

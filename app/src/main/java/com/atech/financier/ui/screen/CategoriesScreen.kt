@@ -46,11 +46,13 @@ private fun CategoriesScreenContent(
         )
 
         LazyColumn(
-            contentPadding = PaddingValues(1.dp),
+            contentPadding = PaddingValues(vertical = 1.dp),
             verticalArrangement = Arrangement.spacedBy(1.dp)
         ) {
             items(
-                items = state.categories.filter { it.title.contains(state.search, true) }
+                items = state.categories
+                    .filter { it.title.contains(state.search, true) },
+                key = { category -> category.id }
             ) { category ->
                 ColumnItem(
                     title = category.title,

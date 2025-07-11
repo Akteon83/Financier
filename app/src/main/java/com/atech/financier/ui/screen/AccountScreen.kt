@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.atech.financier.R
+import com.atech.financier.ui.component.ChevronIcon
 import com.atech.financier.ui.component.ColumnItem
 import com.atech.financier.ui.theme.FinancierTheme
 import com.atech.financier.ui.theme.Trans
@@ -41,29 +42,19 @@ private fun AccountScreenContent(
         modifier = Modifier.background(MaterialTheme.colorScheme.outlineVariant),
         verticalArrangement = Arrangement.spacedBy(1.dp)
     ) {
+
         ColumnItem(
             title = stringResource(R.string.balance),
             value = "${state.balance} ${state.currency}",
             color = MaterialTheme.colorScheme.secondary,
-            iconRight = {
-                Icon(
-                    painter = painterResource(R.drawable.chevron_right),
-                    contentDescription = null,
-                    tint = Trans
-                )
-            }
+            iconRight = { ChevronIcon() }
         )
+
         ColumnItem(
             title = stringResource(R.string.currency),
             value = state.currency,
             color = MaterialTheme.colorScheme.secondary,
-            iconRight = {
-                Icon(
-                    painter = painterResource(R.drawable.chevron_right),
-                    contentDescription = null,
-                    tint = Trans
-                )
-            }
+            iconRight = { ChevronIcon() }
         )
     }
 }

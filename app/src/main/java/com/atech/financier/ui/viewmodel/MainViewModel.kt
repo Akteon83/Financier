@@ -14,4 +14,9 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun updateTransaction() {
+        viewModelScope.launch {
+            EventBus.invokeAction(EventBus.GlobalAction.UpdateTransaction)
+        }
+    }
 }

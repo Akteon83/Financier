@@ -20,7 +20,7 @@ object CategoryRepositoryImpl : CategoryRepository {
         try {
             _categories = RetrofitInstance.api.getCategories()
                 .body()?.map { it.toDomain() } ?: emptyList()
-        } catch (e: Error) {
+        } catch (e: Exception) {
 
         }
     }
