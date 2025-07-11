@@ -13,6 +13,7 @@ object EventBus {
     sealed interface GlobalAction {
         data object UpdateAccount: GlobalAction
         data object AccountUpdated: GlobalAction
+        data object UpdateTransaction: GlobalAction
+        data object TransactionsUpdated: GlobalAction
     }
-
 }

@@ -8,18 +8,20 @@ import com.atech.financier.ui.viewmodel.HistoryItemState
 import com.atech.financier.ui.viewmodel.RevenueItemState
 
 fun Transaction.toExpenseItemState(): ExpenseItemState? {
-    return if (amount >= 0) null
+    return if (isIncome) null
     else ExpenseItemState(
+        id = id,
         title = title,
-        amount = (-amount).toAmount(),
+        amount = amount.toAmount(),
         description = comment ?: "",
         emoji = emoji,
     )
 }
 
 fun Transaction.toRevenueItemState(): RevenueItemState? {
-    return if (amount < 0) null
+    return if (!isIncome) null
     else RevenueItemState(
+        id = id,
         title = title,
         amount = amount.toAmount(),
         description = comment ?: "",
@@ -28,6 +30,7 @@ fun Transaction.toRevenueItemState(): RevenueItemState? {
 
 fun Transaction.toHistoryItemState(): HistoryItemState {
     return HistoryItemState(
+        id = id,
         title = title,
         amount = amount.toAmount(),
         description = comment ?: "",

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -15,7 +14,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,10 +21,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.atech.financier.R
+import com.atech.financier.ui.component.ChevronIcon
 import com.atech.financier.ui.component.ColumnItem
 import com.atech.financier.ui.component.TextFieldItem
 import com.atech.financier.ui.theme.FinancierTheme
-import com.atech.financier.ui.theme.Trans
 import com.atech.financier.ui.viewmodel.AccountEditorState
 import com.atech.financier.ui.viewmodel.AccountEditorViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -34,7 +32,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AccountEditor(
+fun AccountEditorScreen(
     viewModel: AccountEditorViewModel = viewModel(),
 ) {
     LaunchedEffect(Unit) { viewModel.loadAccount() }
@@ -88,13 +86,7 @@ private fun AccountEditorScreenContent(
         ColumnItem(
             title = stringResource(R.string.currency),
             value = state.currency,
-            iconRight = {
-                Icon(
-                    painter = painterResource(R.drawable.chevron_right),
-                    contentDescription = null,
-                    tint = Trans
-                )
-            },
+            iconRight = { ChevronIcon() },
             onClick = showBottomSheet
         )
     }

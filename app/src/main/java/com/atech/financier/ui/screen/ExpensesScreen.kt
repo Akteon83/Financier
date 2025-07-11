@@ -18,8 +18,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.atech.financier.R
+import com.atech.financier.ui.component.ChevronIcon
 import com.atech.financier.ui.component.ColumnItem
+import com.atech.financier.ui.navigation.Screen
 import com.atech.financier.ui.theme.FinancierTheme
 import com.atech.financier.ui.theme.Trans
 import com.atech.financier.ui.viewmodel.ExpensesState
@@ -27,12 +32,21 @@ import com.atech.financier.ui.viewmodel.ExpensesViewModel
 
 @Composable
 fun ExpensesScreen(
-    viewModel: ExpensesViewModel = viewModel()
+    viewModel: ExpensesViewModel = viewModel(),
+    navController: NavHostController = rememberNavController()
 ) {
     LaunchedEffect(Unit) { viewModel.loadTransactions() }
     val state by viewModel.state.collectAsStateWithLifecycle()
     ExpensesScreenContent(
         state = state,
+        onItemClick = { id ->
+            navController.navigate(
+                Screen.TransactionEditor(
+                    isIncome = false,
+                    id = id
+                )
+            )
+        },
         onRefresh = viewModel::updateTransactions
     )
 }
@@ -40,6 +54,7 @@ fun ExpensesScreen(
 @Composable
 private fun ExpensesScreenContent(
     state: ExpensesState = ExpensesState(),
+    onItemClick: (Int) -> Unit = {},
     onRefresh: () -> Unit = {}
 ) {
     Column(modifier = Modifier.background(MaterialTheme.colorScheme.outlineVariant)) {
@@ -56,7 +71,8 @@ private fun ExpensesScreenContent(
             verticalArrangement = Arrangement.spacedBy(1.dp)
         ) {
             items(
-                items = state.expenses
+                items = state.expenses,
+                key = { expense -> expense.id }
             ) { expense ->
                 ColumnItem(
                     title = expense.title,
@@ -64,14 +80,8 @@ private fun ExpensesScreenContent(
                     description = expense.description,
                     emoji = expense.emoji,
                     highEmphasis = true,
-                    iconRight = {
-                        Icon(
-                            painter = painterResource(R.drawable.chevron_right),
-                            contentDescription = null,
-                            tint = Trans
-                        )
-                    }
-                )
+                    iconRight = { ChevronIcon() }
+                ) { onItemClick(expense.id) }
             }
         }
     }

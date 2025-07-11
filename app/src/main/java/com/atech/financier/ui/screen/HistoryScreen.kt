@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.atech.financier.R
+import com.atech.financier.ui.component.ChevronIcon
 import com.atech.financier.ui.component.ColumnItem
 import com.atech.financier.ui.theme.FinancierTheme
 import com.atech.financier.ui.theme.Trans
@@ -27,8 +28,10 @@ import com.atech.financier.ui.viewmodel.HistoryViewModel
 
 @Composable
 fun HistoryScreen(
-    viewModel: HistoryViewModel = viewModel()
+    viewModel: HistoryViewModel = viewModel(),
+    isRevenuesHistory : Boolean = false
 ) {
+    viewModel.revenuesHistory(isRevenuesHistory)
     LaunchedEffect(Unit) { viewModel.loadTransactions() }
     val state by viewModel.state.collectAsStateWithLifecycle()
     HistoryScreenContent(
@@ -79,13 +82,7 @@ private fun HistoryScreenContent(
                     description = transaction.description,
                     emoji = transaction.emoji,
                     highEmphasis = true,
-                    iconRight = {
-                        Icon(
-                            painter = painterResource(R.drawable.chevron_right),
-                            contentDescription = null,
-                            tint = Trans
-                        )
-                    }
+                    iconRight = { ChevronIcon() }
                 )
             }
         }

@@ -5,6 +5,7 @@ import com.atech.financier.ui.viewmodel.CategoryItemState
 
 fun Category.toCategoryItemState(): CategoryItemState {
     return CategoryItemState(
+        id = id,
         title = title,
         emoji = emoji,
     )

@@ -24,20 +24,30 @@ class HistoryViewModel : ViewModel() {
     )
     val state: StateFlow<HistoryState> = _state.asStateFlow()
 
+    private var isIncome = false
+
+    fun revenuesHistory(isRevenuesHistory: Boolean) {
+        isIncome = isRevenuesHistory
+    }
+
     fun updateTransactions() = loadTransactions(true)
 
     fun loadTransactions(requireUpdate: Boolean = false) {
+
         viewModelScope.launch {
+
             val account = AccountRepositoryImpl
                 .getAccount(
                     id = 1,
                     requireUpdate = requireUpdate,
                 )
+
             val transactions = TransactionRepositoryImpl
                 .getTransactions(
                     accountId = 1,
                     requireUpdate = requireUpdate,
-                ).sortedByDescending { it.dateTime }
+                ).filter { it.isIncome == isIncome }.sortedByDescending { it.dateTime }
+
             _state.update { currentState ->
                 currentState.copy(
                     total = transactions.sumOf { it.amount }.toAmount(),
@@ -47,7 +57,6 @@ class HistoryViewModel : ViewModel() {
             }
         }
     }
-
 }
 
 @Immutable
@@ -61,6 +70,7 @@ data class HistoryState(
 
 @Immutable
 data class HistoryItemState(
+    val id: Int,
     val title: String = "",
     val amount: String = "",
     val description: String = "",

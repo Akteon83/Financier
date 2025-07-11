@@ -3,44 +3,38 @@ package com.atech.financier.ui.navigation
 import com.atech.financier.R
 
 /** Класс, описывающий элемент нижней панели навигации */
-data class BottomNavigationItem<T : Screen>(
+enum class BottomNavigationItem(
     val label: Int,
     val icon: Int,
-    val route: T
+    val route: Screen
 ) {
-    companion object {
+    EXPENSES(
+        R.string.expenses,
+        R.drawable.expenses,
+        Screen.Expenses,
+    ),
 
-        val navigationBarItems = listOf(
+    REVENUES(
+        R.string.revenues,
+        R.drawable.revenues,
+        Screen.Revenues,
+    ),
 
-            BottomNavigationItem(
-                R.string.expenses,
-                R.drawable.expenses,
-                Screen.Expenses
-            ),
+    ACCOUNT(
+        R.string.account,
+        R.drawable.account,
+        Screen.Account,
+    ),
 
-            BottomNavigationItem(
-                R.string.revenues,
-                R.drawable.revenues,
-                Screen.Revenues
-            ),
+    CATEGORIES(
+        R.string.categories,
+        R.drawable.categories,
+        Screen.Categories,
+    ),
 
-            BottomNavigationItem(
-                R.string.account,
-                R.drawable.account,
-                Screen.Account
-            ),
-
-            BottomNavigationItem(
-                R.string.categories,
-                R.drawable.categories,
-                Screen.Categories
-            ),
-
-            BottomNavigationItem(
-                R.string.settings,
-                R.drawable.settings,
-                Screen.Settings
-            )
-        )
-    }
+    SETTINGS(
+        R.string.settings,
+        R.drawable.settings,
+        Screen.Settings,
+    ),
 }

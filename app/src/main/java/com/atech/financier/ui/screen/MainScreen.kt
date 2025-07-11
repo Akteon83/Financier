@@ -1,5 +1,6 @@
 package com.atech.financier.ui.screen
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -27,79 +30,64 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.atech.financier.R
-import com.atech.financier.ui.navigation.BottomNavigationItem.Companion.navigationBarItems
+import com.atech.financier.ui.navigation.BottomNavigationItem
 import com.atech.financier.ui.navigation.Screen
+import com.atech.financier.ui.navigation.screen
+import com.atech.financier.ui.navigation.selectedBottomItem
 import com.atech.financier.ui.viewmodel.MainViewModel
+import kotlin.enums.enumEntries
 
+@SuppressLint("RestrictedApi")
 @Composable
 fun MainScreen(
     viewModel: MainViewModel = viewModel(),
-    currentScreen: Screen,
     navController: NavHostController = rememberNavController(),
 ) {
+    val navBackStack by navController.currentBackStack.collectAsState()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+
     MainScreenContent(
-        currentScreen = currentScreen,
-        onActionClick = {
-            when (currentScreen) {
-                is Screen.Expenses, is Screen.Revenues -> {
+        screen = navBackStackEntry?.screen ?: Screen.Expenses,
+        selectedBottomItem = navBackStack.selectedBottomItem,
+        onActionClick = { screen ->
+            when (screen) {
+                is Screen.Expenses,
+                is Screen.Revenues -> {
                     navController.navigate(
-                        when (currentScreen) {
-                            is Screen.Expenses -> Screen.ExpensesHistory
-                            else -> Screen.RevenuesHistory
-                        }
-                    ) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
+                        Screen.History(isIncome = screen is Screen.Revenues)
+                    )
                 }
 
                 is Screen.Account -> {
                     navController.navigate(
                         Screen.AccountEditor
-                    ) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
+                    )
                 }
 
                 is Screen.AccountEditor -> {
                     viewModel.updateAccount()
-                    navController.navigate(
-                        Screen.Account
-                    ) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
+                    navController.navigateUp()
+                }
+
+                is Screen.TransactionEditor -> {
+                    viewModel.updateTransaction()
+                    navController.navigateUp()
                 }
 
                 else -> {}
             }
         },
-        onNavigationClick = {
-            navController.navigate(
-                when (currentScreen) {
-                    is Screen.ExpensesHistory -> Screen.Expenses
-                    is Screen.RevenuesHistory -> Screen.Revenues
-                    is Screen.AccountEditor -> Screen.Account
-                    else -> Screen.Expenses
-                }
-            ) {
-                popUpTo(navController.graph.findStartDestination().id) {
-                    saveState = true
-                }
-                launchSingleTop = true
-                restoreState = true
+        onNavigationClick = { screen ->
+            when (screen) {
+                is Screen.History,
+                is Screen.AccountEditor,
+                is Screen.TransactionEditor -> navController.navigateUp()
+
+                else -> {}
             }
         },
         onNavBarClick = { route ->
@@ -110,6 +98,22 @@ fun MainScreen(
                 launchSingleTop = true
                 restoreState = true
             }
+        },
+        onFabClick = { screen ->
+            when (screen) {
+                Screen.Expenses,
+                Screen.Revenues -> {
+                    navController.navigate(
+                        Screen.TransactionEditor(
+                            isIncome = screen is Screen.Revenues,
+                            id = -1
+                        )
+                    )
+                }
+
+                else -> {}
+            }
+
         }
     ) { innerPadding ->
         NavHost(
@@ -119,11 +123,11 @@ fun MainScreen(
         ) {
 
             composable<Screen.Expenses> {
-                ExpensesScreen()
+                ExpensesScreen(navController = navController)
             }
 
             composable<Screen.Revenues> {
-                RevenuesScreen()
+                RevenuesScreen(navController = navController)
             }
 
             composable<Screen.Account> {
@@ -138,18 +142,23 @@ fun MainScreen(
                 SettingsScreen()
             }
 
-            composable<Screen.ExpensesHistory> {
-                HistoryScreen()
-            }
-
-            composable<Screen.RevenuesHistory> {
-                HistoryScreen()
+            composable<Screen.History> {
+                val args = it.toRoute<Screen.History>()
+                HistoryScreen(isRevenuesHistory = args.isIncome)
             }
 
             composable<Screen.AccountEditor> {
-                AccountEditor()
+                AccountEditorScreen()
             }
 
+            composable<Screen.TransactionEditor> {
+                val args = it.toRoute<Screen.TransactionEditor>()
+                TransactionEditorScreen(
+                    navController = navController,
+                    isIncome = args.isIncome,
+                    transactionId = args.id
+                )
+            }
         }
     }
 }
@@ -157,10 +166,12 @@ fun MainScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainScreenContent(
-    currentScreen: Screen,
-    onActionClick: () -> Unit = {},
-    onNavigationClick: () -> Unit = {},
+    screen: Screen,
+    selectedBottomItem: BottomNavigationItem,
+    onActionClick: (Screen) -> Unit = {},
+    onNavigationClick: (Screen) -> Unit = {},
     onNavBarClick: (Screen) -> Unit = {},
+    onFabClick: (Screen) -> Unit = {},
     content: @Composable ((PaddingValues) -> Unit) = {}
 ) {
     Scaffold(
@@ -169,20 +180,21 @@ private fun MainScreenContent(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = stringResource(currentScreen.screenTitle),
+                        text = stringResource(screen.screenTitle),
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
                 navigationIcon = {
-                    if (currentScreen is Screen.ExpensesHistory
-                        || currentScreen is Screen.RevenuesHistory
-                        || currentScreen is Screen.AccountEditor
+                    AnimatedVisibility(
+                        screen is Screen.History
+                                || screen is Screen.AccountEditor
+                                || screen is Screen.TransactionEditor
                     ) {
                         IconButton(
-                            onClick = onNavigationClick
+                            onClick = { onNavigationClick(screen) }
                         ) {
                             Icon(
-                                painter = painterResource(currentScreen.navigationIcon),
+                                painter = painterResource(screen.navigationIcon),
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
@@ -190,12 +202,15 @@ private fun MainScreenContent(
                     }
                 },
                 actions = {
-                    if (currentScreen !is Screen.Categories && currentScreen !is Screen.Settings) {
+                    AnimatedVisibility(
+                        screen !is Screen.Categories
+                                && screen !is Screen.Settings
+                    ) {
                         IconButton(
-                            onClick = onActionClick
+                            onClick = { onActionClick(screen) }
                         ) {
                             Icon(
-                                painter = painterResource(currentScreen.actionIcon),
+                                painter = painterResource(screen.actionIcon),
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -210,15 +225,9 @@ private fun MainScreenContent(
         },
         bottomBar = {
             NavigationBar {
-                navigationBarItems.forEach { item ->
+                enumEntries<BottomNavigationItem>().forEach { item ->
                     NavigationBarItem(
-                        selected = currentScreen == item.route
-                                || (item.route == Screen.Expenses
-                                && currentScreen == Screen.ExpensesHistory)
-                                || (item.route == Screen.Revenues
-                                && currentScreen == Screen.RevenuesHistory)
-                                || (item.route == Screen.Account
-                                && currentScreen == Screen.AccountEditor),
+                        selected = item == selectedBottomItem,
                         onClick = { onNavBarClick(item.route) },
                         icon = {
                             Icon(
@@ -237,9 +246,9 @@ private fun MainScreenContent(
             }
         },
         floatingActionButton = {
-            AnimatedVisibility(currentScreen is Screen.Expenses || currentScreen is Screen.Revenues) {
+            AnimatedVisibility(screen is Screen.Expenses || screen is Screen.Revenues) {
                 FloatingActionButton(
-                    onClick = {},
+                    onClick = { onFabClick(screen) },
                     shape = CircleShape,
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.surface,
@@ -267,27 +276,27 @@ val Screen.screenTitle
     get() = when (this) {
         Screen.Expenses -> R.string.expenses_title
         Screen.Revenues -> R.string.revenues_title
-        Screen.Account,
-        Screen.AccountEditor -> R.string.account_title
-
+        Screen.Account, Screen.AccountEditor -> R.string.account_title
         Screen.Categories -> R.string.categories_title
         Screen.Settings -> R.string.settings
-        Screen.ExpensesHistory,
-        Screen.RevenuesHistory -> R.string.history_title
+        is Screen.History -> R.string.history_title
+        is Screen.TransactionEditor -> {
+            if (this.isIncome) R.string.revenues_title else R.string.expenses_title
+        }
     }
 
 val Screen.actionIcon
     get() = when (this) {
-        is Screen.Expenses, is Screen.Revenues -> R.drawable.mdi_history
-        is Screen.Account -> R.drawable.edit
-        is Screen.ExpensesHistory, is Screen.RevenuesHistory -> R.drawable.mdi_clipboard
-        is Screen.AccountEditor -> R.drawable.check
+        Screen.Expenses, Screen.Revenues -> R.drawable.mdi_history
+        Screen.Account -> R.drawable.edit
+        is Screen.History -> R.drawable.mdi_clipboard
+        Screen.AccountEditor, is Screen.TransactionEditor -> R.drawable.check
         else -> R.drawable.empty
     }
 
 val Screen.navigationIcon
     get() = when (this) {
-        is Screen.ExpensesHistory, is Screen.RevenuesHistory -> R.drawable.arrow_back
-        is Screen.AccountEditor -> R.drawable.close
+        is Screen.History -> R.drawable.arrow_back
+        Screen.AccountEditor, is Screen.TransactionEditor -> R.drawable.close
         else -> R.drawable.empty
     }
