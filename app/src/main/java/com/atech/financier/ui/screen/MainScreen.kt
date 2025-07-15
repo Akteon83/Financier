@@ -78,6 +78,12 @@ fun MainScreen(
                     navController.navigateUp()
                 }
 
+                is Screen.History -> {
+                    navController.navigate(
+                        Screen.Analysis(isIncome = screen.isIncome)
+                    )
+                }
+
                 else -> {}
             }
         },
@@ -85,7 +91,8 @@ fun MainScreen(
             when (screen) {
                 is Screen.History,
                 is Screen.AccountEditor,
-                is Screen.TransactionEditor -> navController.navigateUp()
+                is Screen.TransactionEditor,
+                is Screen.Analysis -> navController.navigateUp()
 
                 else -> {}
             }
@@ -159,6 +166,11 @@ fun MainScreen(
                     transactionId = args.id
                 )
             }
+
+            composable<Screen.Analysis> {
+                val args = it.toRoute<Screen.Analysis>()
+                AnalysisScreen(isRevenuesAnalysis = args.isIncome)
+            }
         }
     }
 }
@@ -189,6 +201,7 @@ private fun MainScreenContent(
                         screen is Screen.History
                                 || screen is Screen.AccountEditor
                                 || screen is Screen.TransactionEditor
+                                || screen is Screen.Analysis
                     ) {
                         IconButton(
                             onClick = { onNavigationClick(screen) }
@@ -283,6 +296,8 @@ val Screen.screenTitle
         is Screen.TransactionEditor -> {
             if (this.isIncome) R.string.revenues_title else R.string.expenses_title
         }
+
+        is Screen.Analysis -> R.string.analysis
     }
 
 val Screen.actionIcon
@@ -296,7 +311,7 @@ val Screen.actionIcon
 
 val Screen.navigationIcon
     get() = when (this) {
-        is Screen.History -> R.drawable.arrow_back
+        is Screen.History, is Screen.Analysis -> R.drawable.arrow_back
         Screen.AccountEditor, is Screen.TransactionEditor -> R.drawable.close
         else -> R.drawable.empty
     }

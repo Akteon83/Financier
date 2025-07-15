@@ -43,4 +43,10 @@ sealed interface Screen {
         val isIncome: Boolean,
         val id: Int,
     ) : Screen
+
+    @Serializable
+    @SerialName("Analysis")
+    data class Analysis(
+        val isIncome: Boolean,
+    ) : Screen
 }

@@ -1,9 +1,5 @@
 package com.atech.financier.ui.viewmodel
 
-import android.util.Log
-import android.widget.Toast
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,12 +18,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 
 class TransactionEditorViewModel : ViewModel() {
 
@@ -43,106 +37,6 @@ class TransactionEditorViewModel : ViewModel() {
             EventBus.actions.collect {
                 if (it is EventBus.GlobalAction.UpdateTransaction) updateTransaction()
             }
-        }
-    }
-
-    fun setTransactionInfo(isIncome: Boolean, id: Int) {
-        this.isIncome = isIncome
-        transactionId = id
-    }
-
-    fun onCategoryChange(category: CategoryItemState) {
-        this.category = category
-        _state.update { currentState ->
-            currentState.copy(
-                categoryTitle = category.title
-            )
-        }
-    }
-
-    fun onAmountChange(amount: String) {
-        _state.update { currentState ->
-            currentState.copy(
-                amount = amount
-            )
-        }
-    }
-
-    fun onTitleChange(title: String) {
-        _state.update { currentState ->
-            currentState.copy(
-                title = title
-            )
-        }
-    }
-
-    fun onDateChange(date: Long?) {
-        _state.update { currentState ->
-            currentState.copy(
-                date = if (date != null) {
-                    Instant.ofEpochMilli(date).atZone(ZoneId.systemDefault()).toLocalDate()
-                } else {
-                    Log.i(null, "Bleeding Me...")
-                    currentState.date
-                }
-            )
-        }
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    fun onTimeChange(time: LocalTime) {
-        _state.update { currentState ->
-            currentState.copy(
-                time = time
-            )
-        }
-    }
-
-    fun showDatePicker() {
-        _state.update { currentState ->
-            currentState.copy(
-                showDatePicker = true
-            )
-        }
-    }
-
-    fun hideDatePicker() {
-        _state.update { currentState ->
-            currentState.copy(
-                showDatePicker = false
-            )
-        }
-    }
-
-    fun showTimePicker() {
-        _state.update { currentState ->
-            currentState.copy(
-                showTimePicker = true
-            )
-        }
-    }
-
-    fun hideTimePicker() {
-        _state.update { currentState ->
-            currentState.copy(
-                showTimePicker = false
-            )
-        }
-    }
-
-    fun showBottomSheet() {
-        _state.update { currentState ->
-            currentState.copy(
-                showBottomSheet = true
-            )
-        }
-    }
-
-    fun hideBottomSheet() {
-        _state.update { currentState ->
-            currentState.copy(
-                showBottomSheet = false
-            )
         }
     }
 
@@ -240,6 +134,116 @@ class TransactionEditorViewModel : ViewModel() {
             }
         }
     }
+
+    fun onAction(action: TransactionEditorAction) {
+        when (action) {
+            is TransactionEditorAction.ChangeAmount -> onAmountChange(action.amount)
+            is TransactionEditorAction.ChangeCategory -> onCategoryChange(action.category)
+            is TransactionEditorAction.ChangeTitle -> onTitleChange(action.title)
+            is TransactionEditorAction.ChangeDate -> onDateChange(action.date)
+            is TransactionEditorAction.ChangeTime -> onTimeChange(action.time)
+            TransactionEditorAction.ShowDatePicker -> showDatePicker()
+            TransactionEditorAction.HideDatePicker -> hideDatePicker()
+            TransactionEditorAction.ShowTimePicker -> showTimePicker()
+            TransactionEditorAction.HideTimePicker -> hideTimePicker()
+            TransactionEditorAction.ShowBottomSheet -> showBottomSheet()
+            TransactionEditorAction.HideBottomSheet -> hideBottomSheet()
+        }
+    }
+
+    fun setTransactionInfo(isIncome: Boolean, id: Int) {
+        this.isIncome = isIncome
+        transactionId = id
+    }
+
+    private fun onCategoryChange(category: CategoryItemState) {
+        this.category = category
+        _state.update { currentState ->
+            currentState.copy(
+                categoryTitle = category.title
+            )
+        }
+    }
+
+    private fun onAmountChange(amount: String) {
+        _state.update { currentState ->
+            currentState.copy(
+                amount = amount
+            )
+        }
+    }
+
+    private fun onTitleChange(title: String) {
+        _state.update { currentState ->
+            currentState.copy(
+                title = title
+            )
+        }
+    }
+
+    private fun onDateChange(date: LocalDate?) {
+        _state.update { currentState ->
+            currentState.copy(
+                date = date ?: currentState.date
+            )
+        }
+    }
+
+    private fun onTimeChange(time: LocalTime) {
+        _state.update { currentState ->
+            currentState.copy(
+                time = time
+            )
+        }
+    }
+
+    private fun showDatePicker() {
+        _state.update { currentState ->
+            currentState.copy(
+                showDatePicker = true
+            )
+        }
+    }
+
+    private fun hideDatePicker() {
+        _state.update { currentState ->
+            currentState.copy(
+                showDatePicker = false
+            )
+        }
+    }
+
+    private fun showTimePicker() {
+        _state.update { currentState ->
+            currentState.copy(
+                showTimePicker = true
+            )
+        }
+    }
+
+    private fun hideTimePicker() {
+        _state.update { currentState ->
+            currentState.copy(
+                showTimePicker = false
+            )
+        }
+    }
+
+    private fun showBottomSheet() {
+        _state.update { currentState ->
+            currentState.copy(
+                showBottomSheet = true
+            )
+        }
+    }
+
+    private fun hideBottomSheet() {
+        _state.update { currentState ->
+            currentState.copy(
+                showBottomSheet = false
+            )
+        }
+    }
 }
 
 @Immutable
@@ -255,3 +259,17 @@ data class TransactionEditorState(
     val showTimePicker: Boolean = false,
     val showBottomSheet: Boolean = false,
 )
+
+sealed interface TransactionEditorAction {
+    data class ChangeCategory(val category: CategoryItemState) : TransactionEditorAction
+    data class ChangeAmount(val amount: String) : TransactionEditorAction
+    data class ChangeTitle(val title: String) : TransactionEditorAction
+    data class ChangeDate(val date: LocalDate?) : TransactionEditorAction
+    data class ChangeTime(val time: LocalTime) : TransactionEditorAction
+    object ShowDatePicker : TransactionEditorAction
+    object HideDatePicker : TransactionEditorAction
+    object ShowTimePicker : TransactionEditorAction
+    object HideTimePicker : TransactionEditorAction
+    object ShowBottomSheet : TransactionEditorAction
+    object HideBottomSheet : TransactionEditorAction
+}

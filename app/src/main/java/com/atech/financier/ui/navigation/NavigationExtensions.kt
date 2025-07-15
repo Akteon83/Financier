@@ -18,6 +18,7 @@ val NavBackStackEntry.screen: Screen
             this.destination.hasRoute(Screen.History::class) -> this.toRoute<Screen.History>()
             this.destination.hasRoute(Screen.AccountEditor::class) -> this.toRoute<Screen.AccountEditor>()
             this.destination.hasRoute(Screen.TransactionEditor::class) -> this.toRoute<Screen.TransactionEditor>()
+            this.destination.hasRoute(Screen.Analysis::class) -> this.toRoute<Screen.Analysis>()
             else -> Screen.Expenses
         }
     }

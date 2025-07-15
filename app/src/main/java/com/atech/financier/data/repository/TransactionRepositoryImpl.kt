@@ -1,6 +1,5 @@
 package com.atech.financier.data.repository
 
-import androidx.compose.ui.geometry.Rect
 import com.atech.financier.data.RetrofitInstance
 import com.atech.financier.data.mapper.toDomain
 import com.atech.financier.data.mapper.toDto

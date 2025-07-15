@@ -33,17 +33,19 @@ import androidx.navigation.compose.rememberNavController
 import com.atech.financier.R
 import com.atech.financier.ui.component.ChevronIcon
 import com.atech.financier.ui.component.ColumnItem
-import com.atech.financier.ui.component.DatePickerModal
+import com.atech.financier.ui.component.DateSelectorDialog
 import com.atech.financier.ui.component.TextFieldItem
-import com.atech.financier.ui.component.TimePickerInput
+import com.atech.financier.ui.component.TimeSelectorDialog
 import com.atech.financier.ui.theme.FinancierTheme
 import com.atech.financier.ui.util.toFormattedDate
 import com.atech.financier.ui.util.toFormattedTime
 import com.atech.financier.ui.viewmodel.CategoryItemState
+import com.atech.financier.ui.viewmodel.TransactionEditorAction
 import com.atech.financier.ui.viewmodel.TransactionEditorState
 import com.atech.financier.ui.viewmodel.TransactionEditorViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,21 +66,11 @@ fun TransactionEditorScreen(
     val scope = rememberCoroutineScope()
     TransactionEditorScreenContent(
         state = state,
-        onAmountChange = viewModel::onAmountChange,
-        onTitleChange = viewModel::onTitleChange,
-        onCategoryChange = viewModel::onCategoryChange,
-        onDateChange = viewModel::onDateChange,
-        onTimeChange = viewModel::onTimeChange,
+        onAction = viewModel::onAction,
         onDeleteClick = {
             viewModel.deleteTransaction()
             navController.navigateUp()
         },
-        showDatePicker = viewModel::showDatePicker,
-        hideDatePicker = viewModel::hideDatePicker,
-        showTimePicker = viewModel::showTimePicker,
-        hideTimePicker = viewModel::hideTimePicker,
-        showBottomSheet = viewModel::showBottomSheet,
-        hideBottomSheet = viewModel::hideBottomSheet,
         sheetState = sheetState,
         scope = scope
     )
@@ -88,18 +80,8 @@ fun TransactionEditorScreen(
 @Composable
 fun TransactionEditorScreenContent(
     state: TransactionEditorState = TransactionEditorState(),
-    onAmountChange: (String) -> Unit = {},
-    onTitleChange: (String) -> Unit = {},
-    onCategoryChange: (CategoryItemState) -> Unit = {},
-    onDateChange: (Long?) -> Unit = {},
-    onTimeChange: (LocalTime) -> Unit = {},
+    onAction: (TransactionEditorAction) -> Unit = {},
     onDeleteClick: () -> Unit = {},
-    showDatePicker: () -> Unit = {},
-    hideDatePicker: () -> Unit = {},
-    showTimePicker: () -> Unit = {},
-    hideTimePicker: () -> Unit = {},
-    showBottomSheet: () -> Unit = {},
-    hideBottomSheet: () -> Unit = {},
     sheetState: SheetState = rememberModalBottomSheetState(),
     scope: CoroutineScope = rememberCoroutineScope()
 ) {
@@ -127,13 +109,13 @@ fun TransactionEditorScreenContent(
                 value = state.categoryTitle,
                 highEmphasis = true,
                 iconRight = { ChevronIcon() },
-                onClick = showBottomSheet
+                onClick = { onAction(TransactionEditorAction.ShowBottomSheet) }
             )
 
             TextFieldItem(
                 title = stringResource(R.string.amount),
                 value = state.amount,
-                onValueChange = onAmountChange,
+                onValueChange = { onAction(TransactionEditorAction.ChangeAmount(it)) },
                 keyboardType = KeyboardType.Number
             )
 
@@ -141,25 +123,27 @@ fun TransactionEditorScreenContent(
                 title = stringResource(R.string.date),
                 value = state.date.toFormattedDate(),
                 highEmphasis = true,
-                onClick = showDatePicker
+                onClick = { onAction(TransactionEditorAction.ShowDatePicker) }
             )
 
             ColumnItem(
                 title = stringResource(R.string.time),
                 value = state.time.toFormattedTime(),
                 highEmphasis = true,
-                onClick = showTimePicker
+                onClick = { onAction(TransactionEditorAction.ShowTimePicker) }
             )
 
             TextFieldItem(
                 value = state.title,
-                onValueChange = onTitleChange
+                onValueChange = { onAction(TransactionEditorAction.ChangeTitle(it)) }
             )
         }
 
         TextButton(
             onClick = onDeleteClick,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
             colors = ButtonDefaults.buttonColors().copy(
                 containerColor = MaterialTheme.colorScheme.error,
                 contentColor = MaterialTheme.colorScheme.onError
@@ -173,25 +157,22 @@ fun TransactionEditorScreenContent(
     }
 
     if (state.showDatePicker) {
-        DatePickerModal(
-            onDateSelected = onDateChange,
-            onDismiss = hideDatePicker
+        DateSelectorDialog(
+            onConfirm = { onAction(TransactionEditorAction.ChangeDate(it)) },
+            onDismiss = { onAction(TransactionEditorAction.HideDatePicker) }
         )
     }
 
     if (state.showTimePicker) {
-        TimePickerInput(
-            onConfirm = { state ->
-                onTimeChange(LocalTime.of(state.hour, state.minute))
-                hideTimePicker()
-            },
-            onDismiss = hideTimePicker
+        TimeSelectorDialog(
+            onConfirm = { onAction(TransactionEditorAction.ChangeTime(it)) },
+            onDismiss = { onAction(TransactionEditorAction.HideTimePicker) }
         )
     }
 
     if (state.showBottomSheet) {
         ModalBottomSheet(
-            onDismissRequest = hideBottomSheet,
+            onDismissRequest = { onAction(TransactionEditorAction.HideBottomSheet) },
             sheetState = sheetState
         ) {
             LazyColumn(
@@ -206,10 +187,10 @@ fun TransactionEditorScreenContent(
                         title = category.title,
                         emoji = category.emoji
                     ) {
-                        onCategoryChange(category)
+                        onAction(TransactionEditorAction.ChangeCategory(category))
                         scope.launch { sheetState.hide() }.invokeOnCompletion {
                             if (!sheetState.isVisible) {
-                                hideBottomSheet()
+                                onAction(TransactionEditorAction.HideBottomSheet)
                             }
                         }
                     }
