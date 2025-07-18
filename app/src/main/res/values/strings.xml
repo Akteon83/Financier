@@ -36,4 +36,7 @@
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
     <string name="analysis">Analysis</string>
+    <string name="data_sync">Data synchronized</string>
+    <string name="no_internet">No internet connection</string>
+    <string name="loading_data">Loading data…</string>
 </resources>

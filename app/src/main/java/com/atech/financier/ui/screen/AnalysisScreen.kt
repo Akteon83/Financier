@@ -6,12 +6,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -19,6 +22,7 @@ import com.atech.financier.R
 import com.atech.financier.ui.component.ChevronIcon
 import com.atech.financier.ui.component.ColumnItem
 import com.atech.financier.ui.component.DateSelectorDialog
+import com.atech.financier.ui.theme.FinancierTheme
 import com.atech.financier.ui.util.toAmount
 import com.atech.financier.ui.util.toFormattedDate
 import com.atech.financier.ui.viewmodel.AnalysisAction
@@ -54,13 +58,31 @@ private fun AnalysisScreenContent(
 
         ColumnItem(
             title = stringResource(R.string.beginning),
-            value = state.startDate.toFormattedDate(),
+            iconRight = {
+                Text(
+                    text = state.startDate.toFormattedDate(),
+                    modifier = Modifier.background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = CircleShape
+                    ).padding(vertical = 6.dp, horizontal = 16.dp),
+                    style = MaterialTheme.typography.titleMedium
+                )
+            },
             onClick = { onAction(AnalysisAction.ShowStartPicker) }
         )
 
         ColumnItem(
             title = stringResource(R.string.ending),
-            value = state.endDate.toFormattedDate(),
+            iconRight = {
+                Text(
+                    text = state.endDate.toFormattedDate(),
+                    modifier = Modifier.background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = CircleShape
+                    ).padding(vertical = 6.dp, horizontal = 16.dp),
+                    style = MaterialTheme.typography.titleMedium
+                )
+            },
             onClick = { onAction(AnalysisAction.ShowEndPicker) }
         )
 
@@ -101,5 +123,13 @@ private fun AnalysisScreenContent(
                 onDismiss = { onAction(AnalysisAction.HideEndPicker) }
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AnalysisScreenPreview() {
+    FinancierTheme {
+        AnalysisScreenContent()
     }
 }

@@ -1,13 +1,12 @@
-package com.atech.financier.data
+package com.atech.financier.data.remote
 
-import com.atech.financier.data.dto.AccountDto
-import com.atech.financier.data.dto.AccountRequestDto
-import com.atech.financier.data.dto.AccountResponseDto
-import com.atech.financier.data.dto.CategoryDto
-import com.atech.financier.data.dto.TransactionRequestDto
-import com.atech.financier.data.dto.TransactionResponseDto
-import com.atech.financier.domain.model.Account
-import com.atech.financier.domain.model.Transaction
+import com.atech.financier.data.remote.dto.AccountDto
+import com.atech.financier.data.remote.dto.AccountRequestDto
+import com.atech.financier.data.remote.dto.AccountResponseDto
+import com.atech.financier.data.remote.dto.CategoryDto
+import com.atech.financier.data.remote.dto.TransactionDto
+import com.atech.financier.data.remote.dto.TransactionRequestDto
+import com.atech.financier.data.remote.dto.TransactionResponseDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -18,7 +17,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-/** API для взаимодействия с сервером при помощи Retrofit */
+/** API взаимодействия с сервером при помощи Retrofit */
 interface FinancierApi {
 
     @GET("transactions/account/{accountId}/period")
@@ -50,14 +49,14 @@ interface FinancierApi {
     suspend fun createTransaction(
         @Header("Authorization") token: String = "Bearer 6JpN0O3FBKiO0MxjHtUVb3ST",
         @Body transaction: TransactionRequestDto,
-    )
+    ): Response<TransactionDto>
 
     @PUT("transactions/{id}")
     suspend fun updateTransaction(
         @Header("Authorization") token: String = "Bearer 6JpN0O3FBKiO0MxjHtUVb3ST",
         @Path("id") id: Int,
         @Body transaction: TransactionRequestDto,
-    )
+    ): Response<TransactionResponseDto>
 
     @PUT("accounts/{id}")
     suspend fun updateAccount(
@@ -70,5 +69,5 @@ interface FinancierApi {
     suspend fun deleteTransaction(
         @Header("Authorization") token: String = "Bearer 6JpN0O3FBKiO0MxjHtUVb3ST",
         @Path("id") id: Int,
-    )
+    ): Response<Unit>
 }

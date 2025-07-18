@@ -36,4 +36,7 @@
     <string name="cancel">Отмена</string>
     <string name="ok">ОК</string>
     <string name="analysis">Анализ</string>
+    <string name="data_sync">Данные синхронизированы</string>
+    <string name="no_internet">Отсутствует подключение</string>
+    <string name="loading_data">Загрузка данных…</string>
 </resources>

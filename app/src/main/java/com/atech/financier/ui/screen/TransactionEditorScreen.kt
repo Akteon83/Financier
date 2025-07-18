@@ -1,5 +1,6 @@
 package com.atech.financier.ui.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.atech.financier.FinancierApplication
 import com.atech.financier.R
 import com.atech.financier.ui.component.ChevronIcon
 import com.atech.financier.ui.component.ColumnItem
@@ -37,6 +39,7 @@ import com.atech.financier.ui.component.DateSelectorDialog
 import com.atech.financier.ui.component.TextFieldItem
 import com.atech.financier.ui.component.TimeSelectorDialog
 import com.atech.financier.ui.theme.FinancierTheme
+import com.atech.financier.ui.util.ConnectionObserver
 import com.atech.financier.ui.util.toFormattedDate
 import com.atech.financier.ui.util.toFormattedTime
 import com.atech.financier.ui.viewmodel.CategoryItemState
@@ -68,8 +71,16 @@ fun TransactionEditorScreen(
         state = state,
         onAction = viewModel::onAction,
         onDeleteClick = {
-            viewModel.deleteTransaction()
-            navController.navigateUp()
+            if (ConnectionObserver.hasInternetAccess() || transactionId == -1) {
+                viewModel.deleteTransaction()
+                navController.navigateUp()
+            } else {
+                Toast.makeText(
+                    FinancierApplication.context,
+                    R.string.no_internet,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         },
         sheetState = sheetState,
         scope = scope

@@ -31,6 +31,7 @@ class TransactionEditorViewModel : ViewModel() {
     private var isIncome = false
     private var transactionId = -1
     private var category: CategoryItemState? = null
+    private var categoryId: Int? = null
 
     init {
         viewModelScope.launch {
@@ -86,6 +87,8 @@ class TransactionEditorViewModel : ViewModel() {
                     id = transaction?.accountId ?: 1,
                 )
 
+            categoryId = transaction?.categoryId
+
             _state.update { currentState ->
                 currentState.copy(
                     accountName = account?.name ?: "UNKNOWN",
@@ -111,7 +114,7 @@ class TransactionEditorViewModel : ViewModel() {
                     Transaction(
                         id = transactionId,
                         accountId = 1,
-                        categoryId = category?.id ?: 0,
+                        categoryId = categoryId ?: (category?.id ?: 0),
                         amount = state.value.amount.toBalance(),
                         title = category?.title ?: "",
                         emoji = category?.emoji ?: "",
@@ -163,6 +166,7 @@ class TransactionEditorViewModel : ViewModel() {
                 categoryTitle = category.title
             )
         }
+        categoryId = category.id
     }
 
     private fun onAmountChange(amount: String) {

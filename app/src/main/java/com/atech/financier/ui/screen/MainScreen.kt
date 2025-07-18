@@ -1,6 +1,7 @@
 package com.atech.financier.ui.screen
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,11 +34,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.atech.financier.FinancierApplication
 import com.atech.financier.R
 import com.atech.financier.ui.navigation.BottomNavigationItem
 import com.atech.financier.ui.navigation.Screen
 import com.atech.financier.ui.navigation.screen
 import com.atech.financier.ui.navigation.selectedBottomItem
+import com.atech.financier.ui.util.ConnectionObserver
 import com.atech.financier.ui.viewmodel.MainViewModel
 import kotlin.enums.enumEntries
 
@@ -69,13 +72,29 @@ fun MainScreen(
                 }
 
                 is Screen.AccountEditor -> {
-                    viewModel.updateAccount()
-                    navController.navigateUp()
+                    if (ConnectionObserver.hasInternetAccess()) {
+                        viewModel.updateAccount()
+                        navController.navigateUp()
+                    } else {
+                        Toast.makeText(
+                            FinancierApplication.context,
+                            R.string.no_internet,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
 
                 is Screen.TransactionEditor -> {
-                    viewModel.updateTransaction()
-                    navController.navigateUp()
+                    if (ConnectionObserver.hasInternetAccess()) {
+                        viewModel.updateTransaction()
+                        navController.navigateUp()
+                    } else {
+                        Toast.makeText(
+                            FinancierApplication.context,
+                            R.string.no_internet,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
 
                 is Screen.History -> {
@@ -231,7 +250,8 @@ private fun MainScreenContent(
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
+                    containerColor = if (screen is Screen.Analysis) MaterialTheme.colorScheme.surface
+                    else MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )

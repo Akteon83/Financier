@@ -1,10 +1,14 @@
 package com.atech.financier.data.repository
 
-import com.atech.financier.data.RetrofitInstance
+import com.atech.financier.data.local.RoomInstance
+import com.atech.financier.data.remote.RetrofitInstance
 import com.atech.financier.data.mapper.toDomain
 import com.atech.financier.data.mapper.toDto
+import com.atech.financier.data.mapper.toEntity
+import com.atech.financier.data.remote.dto.AccountResponseDto
 import com.atech.financier.domain.model.Account
 import com.atech.financier.domain.repository.AccountRepository
+import com.atech.financier.ui.util.ConnectionObserver
 import com.atech.financier.ui.util.EventBus
 
 object AccountRepositoryImpl : AccountRepository {
@@ -15,7 +19,10 @@ object AccountRepositoryImpl : AccountRepository {
         id: Int,
         requireUpdate: Boolean,
     ): Account? {
-        if (requireUpdate || _account == null) loadAccount(id = id)
+        if (requireUpdate || _account == null) loadAccount(
+            id = id,
+            requireSync = true,
+            )
         return _account
     }
 
@@ -23,10 +30,17 @@ object AccountRepositoryImpl : AccountRepository {
         account: Account,
     ) {
         try {
-            _account = RetrofitInstance.api.updateAccount(
+
+            val response = RetrofitInstance.api.updateAccount(
                 id = account.id,
                 account = account.toDto(),
-            ).body()?.toDomain()
+            ).body()
+
+            if (response != null) {
+                RoomInstance.database.accountDao.upsertAccount(response.toEntity())
+            }
+
+            _account = response?.toDomain()
             EventBus.invokeAction(EventBus.GlobalAction.AccountUpdated)
         } catch (e: Exception) {
 
@@ -35,13 +49,29 @@ object AccountRepositoryImpl : AccountRepository {
 
     suspend fun loadAccount(
         id: Int,
+        requireSync: Boolean = false,
     ) {
         try {
-            _account = RetrofitInstance.api.getAccount(
-                id = id,
-            ).body()?.toDomain()
+            if (ConnectionObserver.hasInternetAccess()) {
+
+                _account = RoomInstance.database.accountDao.getById(1).toDomain()
+
+                val response = RetrofitInstance.api.getAccount(
+                    id = id,
+                ).body()
+
+                _account = response?.toDomain()
+                if (requireSync && response != null) syncDatabase(response)
+            } else {
+
+                _account = RoomInstance.database.accountDao.getById(1).toDomain()
+            }
         } catch (e: Exception) {
 
         }
+    }
+
+    suspend fun syncDatabase(account: AccountResponseDto) {
+        RoomInstance.database.accountDao.upsertAccount(account.toEntity())
     }
 }
