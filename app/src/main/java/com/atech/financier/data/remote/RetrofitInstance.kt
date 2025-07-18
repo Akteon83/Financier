@@ -1,4 +1,4 @@
-package com.atech.financier.data
+package com.atech.financier.data.remote
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

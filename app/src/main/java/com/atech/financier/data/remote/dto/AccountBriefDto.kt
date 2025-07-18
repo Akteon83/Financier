@@ -1,4 +1,4 @@
-package com.atech.financier.data.dto
+package com.atech.financier.data.remote.dto
 
 data class AccountBriefDto(
     val id: Int,

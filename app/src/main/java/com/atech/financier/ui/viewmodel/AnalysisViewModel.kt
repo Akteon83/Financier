@@ -4,8 +4,8 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.atech.financier.data.repository.AccountRepositoryImpl
+import com.atech.financier.data.repository.CategoryRepositoryImpl
 import com.atech.financier.data.repository.TransactionRepositoryImpl
-import com.atech.financier.ui.mapper.toHistoryItemState
 import com.atech.financier.ui.util.toAmount
 import com.atech.financier.ui.util.toCurrencySymbol
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,30 +18,29 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 
-class HistoryViewModel : ViewModel() {
+class AnalysisViewModel : ViewModel() {
 
-    private val _state = MutableStateFlow(HistoryState())
-    val state: StateFlow<HistoryState> = _state.asStateFlow()
+    private val _state = MutableStateFlow(AnalysisState())
+    val state: StateFlow<AnalysisState> = _state.asStateFlow()
 
     private var isIncome = false
 
-    fun revenuesHistory(isRevenuesHistory: Boolean) {
-        isIncome = isRevenuesHistory
+    fun revenuesAnalysis(isRevenuesAnalysis: Boolean) {
+        isIncome = isRevenuesAnalysis
     }
 
-    fun onAction(action: HistoryAction) {
+    fun onAction(action: AnalysisAction) {
         when (action) {
-            is HistoryAction.ChangeStartDate -> onStartChange(action.date)
-            is HistoryAction.ChangeEndDate -> onEndChange(action.date)
-            HistoryAction.ShowStartPicker -> showStartPicker()
-            HistoryAction.HideStartPicker -> hideStartPicker()
-            HistoryAction.ShowEndPicker -> showEndPicker()
-            HistoryAction.HideEndPicker -> hideEndPicker()
-            HistoryAction.UpdateTransactions -> loadTransactions(true)
+            is AnalysisAction.ChangeStartDate -> onStartChange(action.date)
+            is AnalysisAction.ChangeEndDate -> onEndChange(action.date)
+            AnalysisAction.ShowStartPicker -> showStartPicker()
+            AnalysisAction.HideStartPicker -> hideStartPicker()
+            AnalysisAction.ShowEndPicker -> showEndPicker()
+            AnalysisAction.HideEndPicker -> hideEndPicker()
         }
     }
 
-    fun loadTransactions(requireUpdate: Boolean = false) {
+    fun loadAnalysis(requireUpdate: Boolean = false) {
 
         viewModelScope.launch {
 
@@ -50,6 +49,11 @@ class HistoryViewModel : ViewModel() {
                     id = 1,
                     requireUpdate = requireUpdate,
                 )
+
+            val categories = CategoryRepositoryImpl
+                .getCategories(
+                    requireUpdate = requireUpdate,
+                ).associateBy { it.id }
 
             val transactions = TransactionRepositoryImpl
                 .getTransactions(
@@ -61,17 +65,44 @@ class HistoryViewModel : ViewModel() {
                         .atZone(ZoneId.systemDefault()).toInstant() < it.dateTime
                             && LocalDateTime.of(state.value.endDate, LocalTime.MAX)
                         .atZone(ZoneId.systemDefault()).toInstant() > it.dateTime
-                }.sortedByDescending { it.dateTime }
+                            && it.amount != 0L
+                }
+
+            val analysisItems = hashMapOf<Int, Long>()
+
+            transactions.forEach {
+                analysisItems[it.categoryId] = analysisItems
+                    .getOrDefault(it.categoryId, 0) + it.amount
+            }
+
+            val total = transactions.sumOf { it.amount }
 
             _state.update { currentState ->
                 currentState.copy(
-                    total = transactions.sumOf { it.amount }.toAmount(),
+                    total = total.toAmount(),
                     currency = account?.currency?.toCurrencySymbol() ?: "#",
-                    transactions = transactions.map { it.toHistoryItemState() }
+                    categories = buildList {
+                        analysisItems.forEach { item ->
+                            categories.getOrDefault(item.key, null)?.let {
+                                add(
+                                    AnalysisItemState(
+                                        id = it.id,
+                                        title = it.title,
+                                        amount = item.value,
+                                        emoji = it.emoji,
+                                        share = if (total != 0L) {
+                                            (item.value * 100 / total).toInt()
+                                        } else 0
+                                    )
+                                )
+                            }
+                        }
+                    }.sortedByDescending { it.amount }
                 )
             }
         }
     }
+
 
     private fun onStartChange(date: LocalDate?) {
         _state.update { currentState ->
@@ -79,7 +110,7 @@ class HistoryViewModel : ViewModel() {
                 startDate = date ?: currentState.startDate
             )
         }
-        loadTransactions()
+        loadAnalysis()
     }
 
     private fun onEndChange(date: LocalDate?) {
@@ -88,7 +119,7 @@ class HistoryViewModel : ViewModel() {
                 endDate = date ?: currentState.endDate
             )
         }
-        loadTransactions()
+        loadAnalysis()
     }
 
     private fun showStartPicker() {
@@ -125,32 +156,30 @@ class HistoryViewModel : ViewModel() {
 }
 
 @Immutable
-data class HistoryState(
+data class AnalysisState(
     val startDate: LocalDate = LocalDate.now().withDayOfMonth(1),
     val endDate: LocalDate = LocalDate.now(),
     val total: String = "",
     val currency: String = "",
-    val transactions: List<HistoryItemState> = emptyList(),
+    val categories: List<AnalysisItemState> = emptyList(),
     val showStartPicker: Boolean = false,
     val showEndPicker: Boolean = false,
 )
 
 @Immutable
-data class HistoryItemState(
+data class AnalysisItemState(
     val id: Int,
     val title: String = "",
-    val amount: String = "",
-    val description: String = "",
+    val amount: Long = 0L,
     val emoji: String = "",
-    val dateTime: String = "",
+    val share: Int = 0,
 )
 
-sealed interface HistoryAction {
-    data class ChangeStartDate(val date: LocalDate?) : HistoryAction
-    data class ChangeEndDate(val date: LocalDate?) : HistoryAction
-    object ShowStartPicker : HistoryAction
-    object HideStartPicker : HistoryAction
-    object ShowEndPicker : HistoryAction
-    object HideEndPicker : HistoryAction
-    object UpdateTransactions : HistoryAction
+sealed interface AnalysisAction {
+    data class ChangeStartDate(val date: LocalDate?) : AnalysisAction
+    data class ChangeEndDate(val date: LocalDate?) : AnalysisAction
+    object ShowStartPicker : AnalysisAction
+    object HideStartPicker : AnalysisAction
+    object ShowEndPicker : AnalysisAction
+    object HideEndPicker : AnalysisAction
 }
