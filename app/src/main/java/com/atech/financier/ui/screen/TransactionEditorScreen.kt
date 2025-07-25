@@ -67,6 +67,7 @@ fun TransactionEditorScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
+
     TransactionEditorScreenContent(
         state = state,
         onAction = viewModel::onAction,

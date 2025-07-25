@@ -39,6 +39,7 @@ fun AccountEditorScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
+
     AccountEditorScreenContent(
         state = state,
         onNameChange = viewModel::onNameChange,

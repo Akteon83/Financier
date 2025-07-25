@@ -34,12 +34,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.atech.financier.DataStoreManager
 import com.atech.financier.FinancierApplication
 import com.atech.financier.R
 import com.atech.financier.ui.navigation.BottomNavigationItem
 import com.atech.financier.ui.navigation.Screen
 import com.atech.financier.ui.navigation.screen
 import com.atech.financier.ui.navigation.selectedBottomItem
+import com.atech.financier.ui.theme.ColorMode
+import com.atech.financier.ui.theme.FinancierTheme
 import com.atech.financier.ui.util.ConnectionObserver
 import com.atech.financier.ui.viewmodel.MainViewModel
 import kotlin.enums.enumEntries
@@ -52,10 +55,14 @@ fun MainScreen(
 ) {
     val navBackStack by navController.currentBackStack.collectAsState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val isDarkTheme = DataStoreManager.isDarkTheme.collectAsState(false)
+    val colorMode = DataStoreManager.colorMode.collectAsState(ColorMode.GREEN)
 
     MainScreenContent(
         screen = navBackStackEntry?.screen ?: Screen.Expenses,
         selectedBottomItem = navBackStack.selectedBottomItem,
+        isDarkTheme = isDarkTheme.value,
+        colorMode = colorMode.value,
         onActionClick = { screen ->
             when (screen) {
                 is Screen.Expenses,
@@ -199,109 +206,113 @@ fun MainScreen(
 private fun MainScreenContent(
     screen: Screen,
     selectedBottomItem: BottomNavigationItem,
+    isDarkTheme: Boolean = false,
+    colorMode: ColorMode = ColorMode.GREEN,
     onActionClick: (Screen) -> Unit = {},
     onNavigationClick: (Screen) -> Unit = {},
     onNavBarClick: (Screen) -> Unit = {},
     onFabClick: (Screen) -> Unit = {},
     content: @Composable ((PaddingValues) -> Unit) = {}
 ) {
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(screen.screenTitle),
-                        style = MaterialTheme.typography.titleLarge
+    FinancierTheme(darkTheme = isDarkTheme, colorMode = colorMode) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = stringResource(screen.screenTitle),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    },
+                    navigationIcon = {
+                        AnimatedVisibility(
+                            screen is Screen.History
+                                    || screen is Screen.AccountEditor
+                                    || screen is Screen.TransactionEditor
+                                    || screen is Screen.Analysis
+                        ) {
+                            IconButton(
+                                onClick = { onNavigationClick(screen) }
+                            ) {
+                                Icon(
+                                    painter = painterResource(screen.navigationIcon),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                    },
+                    actions = {
+                        AnimatedVisibility(
+                            screen !is Screen.Categories
+                                    && screen !is Screen.Settings
+                        ) {
+                            IconButton(
+                                onClick = { onActionClick(screen) }
+                            ) {
+                                Icon(
+                                    painter = painterResource(screen.actionIcon),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = if (screen is Screen.Analysis) MaterialTheme.colorScheme.surface
+                        else MaterialTheme.colorScheme.primary,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface
                     )
-                },
-                navigationIcon = {
-                    AnimatedVisibility(
-                        screen is Screen.History
-                                || screen is Screen.AccountEditor
-                                || screen is Screen.TransactionEditor
-                                || screen is Screen.Analysis
-                    ) {
-                        IconButton(
-                            onClick = { onNavigationClick(screen) }
-                        ) {
-                            Icon(
-                                painter = painterResource(screen.navigationIcon),
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
-                },
-                actions = {
-                    AnimatedVisibility(
-                        screen !is Screen.Categories
-                                && screen !is Screen.Settings
-                    ) {
-                        IconButton(
-                            onClick = { onActionClick(screen) }
-                        ) {
-                            Icon(
-                                painter = painterResource(screen.actionIcon),
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = if (screen is Screen.Analysis) MaterialTheme.colorScheme.surface
-                    else MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
                 )
-            )
-        },
-        bottomBar = {
-            NavigationBar {
-                enumEntries<BottomNavigationItem>().forEach { item ->
-                    NavigationBarItem(
-                        selected = item == selectedBottomItem,
-                        onClick = { onNavBarClick(item.route) },
-                        icon = {
-                            Icon(
-                                painter = painterResource(item.icon),
-                                contentDescription = null
-                            )
-                        },
-                        label = {
-                            Text(
-                                text = stringResource(item.label),
-                                style = MaterialTheme.typography.labelSmall
-                            )
-                        }
-                    )
+            },
+            bottomBar = {
+                NavigationBar {
+                    enumEntries<BottomNavigationItem>().forEach { item ->
+                        NavigationBarItem(
+                            selected = item == selectedBottomItem,
+                            onClick = { onNavBarClick(item.route) },
+                            icon = {
+                                Icon(
+                                    painter = painterResource(item.icon),
+                                    contentDescription = null
+                                )
+                            },
+                            label = {
+                                Text(
+                                    text = stringResource(item.label),
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
+                        )
+                    }
                 }
-            }
-        },
-        floatingActionButton = {
-            AnimatedVisibility(screen is Screen.Expenses || screen is Screen.Revenues) {
-                FloatingActionButton(
-                    onClick = { onFabClick(screen) },
-                    shape = CircleShape,
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.surface,
-                    elevation = FloatingActionButtonDefaults.elevation(
-                        0.dp,
-                        0.dp,
-                        0.dp,
-                        0.dp
-                    )
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.add),
-                        contentDescription = null
-                    )
+            },
+            floatingActionButton = {
+                AnimatedVisibility(screen is Screen.Expenses || screen is Screen.Revenues) {
+                    FloatingActionButton(
+                        onClick = { onFabClick(screen) },
+                        shape = CircleShape,
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.surface,
+                        elevation = FloatingActionButtonDefaults.elevation(
+                            0.dp,
+                            0.dp,
+                            0.dp,
+                            0.dp
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.add),
+                            contentDescription = null
+                        )
+                    }
                 }
-            }
-        },
-        containerColor = MaterialTheme.colorScheme.surface
-    ) { innerPadding ->
-        content(innerPadding)
+            },
+            containerColor = MaterialTheme.colorScheme.surface
+        ) { innerPadding ->
+            content(innerPadding)
+        }
     }
 }
 

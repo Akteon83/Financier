@@ -27,7 +27,6 @@ object TransactionRepositoryImpl : TransactionRepository {
         requireUpdate: Boolean,
     ): List<Transaction> {
         if (requireUpdate || _transactions == null) {
-            loadDatabase()
             loadTransactions(
                 accountId = accountId,
                 requireSync = true,
@@ -130,6 +129,8 @@ object TransactionRepositoryImpl : TransactionRepository {
                 _transactions = response.map { it.toDomain() }.sortedByDescending { it.dateTime }
                 if (requireSync) syncDatabase(response)
             } else {
+
+                loadDatabase()
 
                 Toast.makeText(
                     FinancierApplication.context,

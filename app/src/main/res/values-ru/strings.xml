@@ -39,4 +39,10 @@
     <string name="data_sync">Данные синхронизированы</string>
     <string name="no_internet">Отсутствует подключение</string>
     <string name="loading_data">Загрузка данных…</string>
+    <string name="purple">Фиолетовый</string>
+    <string name="green">Зеленый</string>
+    <string name="blue">Синий</string>
+    <string name="by_default">По умолчанию</string>
+    <string name="eng">Английский</string>
+    <string name="rus">Русский</string>
 </resources>

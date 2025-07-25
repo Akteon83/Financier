@@ -11,25 +11,6 @@ import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
 
-    /*init {
-        viewModelScope.launch {
-
-            AccountRepositoryImpl.loadAccount(
-                id = 1,
-                requireSync = ConnectionObserver.hasInternetAccess()
-            )
-
-            CategoryRepositoryImpl.loadCategories(
-                requireSync = ConnectionObserver.hasInternetAccess()
-            )
-
-            TransactionRepositoryImpl.loadTransactions(
-                accountId = 1,
-                requireSync = ConnectionObserver.hasInternetAccess()
-            )
-        }
-    }*/
-
     fun updateAccount() {
         viewModelScope.launch {
             EventBus.invokeAction(EventBus.GlobalAction.UpdateAccount)

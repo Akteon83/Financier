@@ -55,21 +55,21 @@ private fun HistoryScreenContent(
         ColumnItem(
             title = stringResource(R.string.beginning),
             value = state.startDate.toFormattedDate(),
-            color = MaterialTheme.colorScheme.secondary,
+            color = MaterialTheme.colorScheme.secondaryContainer,
             onClick = { onAction(HistoryAction.ShowStartPicker) }
         )
 
         ColumnItem(
             title = stringResource(R.string.ending),
             value = state.endDate.toFormattedDate(),
-            color = MaterialTheme.colorScheme.secondary,
+            color = MaterialTheme.colorScheme.secondaryContainer,
             onClick = { onAction(HistoryAction.ShowEndPicker) }
         )
 
         ColumnItem(
             title = stringResource(R.string.amount),
             value = "${state.total} ${state.currency}",
-            color = MaterialTheme.colorScheme.secondary,
+            color = MaterialTheme.colorScheme.secondaryContainer,
             onClick = { onAction(HistoryAction.UpdateTransactions) }
         )
 

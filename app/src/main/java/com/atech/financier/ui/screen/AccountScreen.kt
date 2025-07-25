@@ -46,14 +46,14 @@ private fun AccountScreenContent(
         ColumnItem(
             title = stringResource(R.string.balance),
             value = "${state.balance} ${state.currency}",
-            color = MaterialTheme.colorScheme.secondary,
+            color = MaterialTheme.colorScheme.secondaryContainer,
             iconRight = { ChevronIcon() }
         )
 
         ColumnItem(
             title = stringResource(R.string.currency),
             value = state.currency,
-            color = MaterialTheme.colorScheme.secondary,
+            color = MaterialTheme.colorScheme.secondaryContainer,
             iconRight = { ChevronIcon() }
         )
     }
