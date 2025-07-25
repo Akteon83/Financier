@@ -17,7 +17,6 @@ object CategoryRepositoryImpl : CategoryRepository {
         requireUpdate: Boolean,
     ): List<Category> {
         if (requireUpdate || _categories == null) {
-            loadDatabase()
             loadCategories(requireSync = true)
         }
         return _categories ?: emptyList()
@@ -34,11 +33,15 @@ object CategoryRepositoryImpl : CategoryRepository {
 
                 _categories = response.map { it.toDomain() }
                 if (requireSync) syncDatabase(response)
+            } else {
+
+                loadDatabase()
             }
         } catch (e: Exception) {
 
         }
     }
+
     private suspend fun loadDatabase() {
         _categories = RoomInstance.database.categoryDao.getAll().map { it.toDomain() }
     }

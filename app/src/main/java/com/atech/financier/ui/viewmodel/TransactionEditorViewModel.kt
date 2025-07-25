@@ -52,7 +52,7 @@ class TransactionEditorViewModel : ViewModel() {
                         .map { it.toCategoryItemState() }
                 )
             }
-            if (category == null) onCategoryChange(state.value.categories.first())
+            if (category == null) onCategoryChange(state.value.categories.firstOrNull())
         }
     }
 
@@ -110,20 +110,22 @@ class TransactionEditorViewModel : ViewModel() {
 
             withContext(NonCancellable) {
 
-                TransactionRepositoryImpl.updateTransaction(
-                    Transaction(
-                        id = transactionId,
-                        accountId = 1,
-                        categoryId = categoryId ?: (category?.id ?: 0),
-                        amount = state.value.amount.toBalance(),
-                        title = category?.title ?: "",
-                        emoji = category?.emoji ?: "",
-                        comment = state.value.title,
-                        dateTime = LocalDateTime.of(state.value.date, state.value.time)
-                            .atZone(ZoneId.systemDefault()).toInstant(),
-                        isIncome = isIncome,
+                if (categoryId != null || category != null) {
+                    TransactionRepositoryImpl.updateTransaction(
+                        Transaction(
+                            id = transactionId,
+                            accountId = 1,
+                            categoryId = categoryId ?: (category?.id ?: 0),
+                            amount = state.value.amount.toBalance(),
+                            title = category?.title ?: "",
+                            emoji = category?.emoji ?: "",
+                            comment = state.value.title,
+                            dateTime = LocalDateTime.of(state.value.date, state.value.time)
+                                .atZone(ZoneId.systemDefault()).toInstant(),
+                            isIncome = isIncome,
+                        )
                     )
-                )
+                }
             }
         }
     }
@@ -159,7 +161,8 @@ class TransactionEditorViewModel : ViewModel() {
         transactionId = id
     }
 
-    private fun onCategoryChange(category: CategoryItemState) {
+    private fun onCategoryChange(category: CategoryItemState?) {
+        if (category == null) return
         this.category = category
         _state.update { currentState ->
             currentState.copy(

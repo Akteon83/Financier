@@ -39,4 +39,10 @@
     <string name="data_sync">Data synchronized</string>
     <string name="no_internet">No internet connection</string>
     <string name="loading_data">Loading data…</string>
+    <string name="purple">Purple</string>
+    <string name="green">Green</string>
+    <string name="blue">Blue</string>
+    <string name="by_default">Default</string>
+    <string name="eng">English</string>
+    <string name="rus">Russian</string>
 </resources>

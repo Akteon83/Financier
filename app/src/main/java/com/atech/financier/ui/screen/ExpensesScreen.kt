@@ -62,7 +62,7 @@ private fun ExpensesScreenContent(
         ColumnItem(
             title = stringResource(R.string.total),
             value = "${state.total} ${state.currency}",
-            color = MaterialTheme.colorScheme.secondary,
+            color = MaterialTheme.colorScheme.secondaryContainer,
             onClick = onRefresh
         )
 
